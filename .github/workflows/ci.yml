@@ -113,7 +113,7 @@ jobs:
 
     - name: Submit code coverage
       if: ${{ matrix.prefer-lowest != 'prefer-lowest' }}
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -183,7 +183,7 @@ jobs:
           vendor/bin/phpunit --coverage-clover=coverage.xml
 
     - name: Submit code coverage
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
 
