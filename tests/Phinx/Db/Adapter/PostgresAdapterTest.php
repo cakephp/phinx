@@ -3048,4 +3048,170 @@ OUTPUT;
         $adapter = new PostgresAdapter(PGSQL_DB_CONFIG);
         $this->assertFalse($adapter->getConnection()->getAttribute(PDO::ATTR_PERSISTENT));
     }
+
+    public function testGetSqlTypeEnum()
+    {
+        $this->assertEquals(['name' => 'enum'], $this->adapter->getSqlType('enum'));
+    }
+
+    public function testEnumIsValidColumnType()
+    {
+        $col = new Column();
+        $col->setType('enum');
+        $this->assertTrue($this->adapter->isValidColumnType($col));
+    }
+
+    public function testCreateTableWithEnumColumn()
+    {
+        $table = new Table('moods', ['id' => false], $this->adapter);
+        $table->addColumn('current_mood', 'enum', [
+            'values' => ['sad', 'ok', 'happy'],
+            'null' => false,
+        ])->save();
+
+        $this->assertTrue($this->adapter->hasTable('moods'));
+        $this->assertTrue($this->adapter->hasColumn('moods', 'current_mood'));
+
+        // The PostgreSQL type should exist
+        $result = $this->adapter->fetchRow(
+            "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'moods_current_mood' AND typtype = 'e') AS type_exists",
+        );
+        $this->assertTrue((bool)$result['type_exists'], 'Enum type moods_current_mood should exist');
+    }
+
+    public function testCreateTableWithEnumColumnRoundTrip()
+    {
+        $values = ['pending', 'active', 'archived'];
+
+        $table = new Table('orders', ['id' => false], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => $values, 'null' => false])->save();
+
+        $columns = $this->adapter->getColumns('orders');
+        $statusColumn = null;
+        foreach ($columns as $column) {
+            if ($column->getName() === 'status') {
+                $statusColumn = $column;
+                break;
+            }
+        }
+
+        $this->assertNotNull($statusColumn, 'Column status should exist');
+        $this->assertEquals('enum', $statusColumn->getType());
+        $this->assertEquals($values, $statusColumn->getValues());
+    }
+
+    public function testAddEnumColumn()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table->addColumn('mood', 'enum', [
+            'values' => ['happy', 'sad', 'neutral'],
+            'null' => true,
+        ])->save();
+
+        $this->assertTrue($this->adapter->hasColumn('table1', 'mood'));
+
+        // The type should have been created
+        $result = $this->adapter->fetchRow(
+            "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'table1_mood' AND typtype = 'e') AS type_exists",
+        );
+        $this->assertTrue((bool)$result['type_exists'], 'Enum type table1_mood should exist');
+    }
+
+    public function testAddEnumColumnRoundTrip()
+    {
+        $values = ['draft', 'published', 'deleted'];
+
+        $table = new Table('articles', [], $this->adapter);
+        $table->save();
+        $table->addColumn('state', 'enum', ['values' => $values, 'null' => false])->save();
+
+        $columns = $this->adapter->getColumns('articles');
+        $stateColumn = null;
+        foreach ($columns as $column) {
+            if ($column->getName() === 'state') {
+                $stateColumn = $column;
+                break;
+            }
+        }
+
+        $this->assertNotNull($stateColumn, 'Column state should exist');
+        $this->assertEquals('enum', $stateColumn->getType());
+        $this->assertEquals($values, $stateColumn->getValues());
+    }
+
+    public function testDropColumnDropsEnumType()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => ['on', 'off']])->save();
+
+        $this->assertTrue($this->adapter->hasColumn('table1', 'status'));
+
+        $result = $this->adapter->fetchRow(
+            "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'table1_status' AND typtype = 'e') AS type_exists",
+        );
+        $this->assertTrue((bool)$result['type_exists'], 'Enum type should exist before drop');
+
+        $table->removeColumn('status')->save();
+
+        $this->assertFalse($this->adapter->hasColumn('table1', 'status'));
+
+        $result = $this->adapter->fetchRow(
+            "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'table1_status' AND typtype = 'e') AS type_exists",
+        );
+        $this->assertFalse((bool)$result['type_exists'], 'Enum type should be dropped along with the column');
+    }
+
+    public function testDropTableDropsEnumTypes()
+    {
+        $table = new Table('notifications', ['id' => false], $this->adapter);
+        $table->addColumn('kind', 'enum', ['values' => ['email', 'sms', 'push'], 'null' => false])
+              ->addColumn('state', 'enum', ['values' => ['queued', 'sent', 'failed'], 'null' => false])
+              ->save();
+
+        $this->assertTrue($this->adapter->hasTable('notifications'));
+
+        $table->drop()->save();
+
+        $this->assertFalse($this->adapter->hasTable('notifications'));
+
+        foreach (['notifications_kind', 'notifications_state'] as $typeName) {
+            $result = $this->adapter->fetchRow(sprintf(
+                "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                $typeName,
+            ));
+            $this->assertFalse((bool)$result['type_exists'], "Enum type $typeName should be dropped with the table");
+        }
+    }
+
+    public function testTwoTablesCanHaveEnumColumnsWithSameName()
+    {
+        $table1 = new Table('users', ['id' => false], $this->adapter);
+        $table1->addColumn('status', 'enum', ['values' => ['active', 'inactive']])->save();
+
+        $table2 = new Table('orders', ['id' => false], $this->adapter);
+        $table2->addColumn('status', 'enum', ['values' => ['pending', 'shipped', 'delivered']])->save();
+
+        // Each table gets its own enum type
+        foreach (['users_status' => ['active', 'inactive'], 'orders_status' => ['pending', 'shipped', 'delivered']] as $typeName => $expectedValues) {
+            $rows = $this->adapter->fetchAll(sprintf(
+                "SELECT e.enumlabel FROM pg_type t JOIN pg_enum e ON t.oid = e.enumtypid
+                 WHERE t.typname = '%s' ORDER BY e.enumsortorder",
+                $typeName,
+            ));
+            $this->assertEquals($expectedValues, array_column($rows, 'enumlabel'), "Values for $typeName should match");
+        }
+    }
+
+    public function testCreateTableWithEnumColumnWithSchema()
+    {
+        $this->adapter->createSchema('tschema');
+
+        $table = new Table('tschema.events', ['id' => false], $this->adapter);
+        $table->addColumn('level', 'enum', ['values' => ['info', 'warning', 'error'], 'null' => false])->save();
+
+        $this->assertTrue($this->adapter->hasTable('tschema.events'));
+        $this->assertTrue($this->adapter->hasColumn('tschema.events', 'level'));
+    }
 }
