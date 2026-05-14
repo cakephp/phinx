@@ -3219,8 +3219,8 @@ OUTPUT;
     {
         $table = new Table('table1', [], $this->adapter);
         $table->addColumn('status', 'enum', [
-            'values'  => ['pending', 'active', 'archived'],
-            'null'    => false,
+            'values' => ['pending', 'active', 'archived'],
+            'null' => false,
             'default' => 'pending',
         ])->save();
 
@@ -3241,7 +3241,7 @@ OUTPUT;
         $table = new Table('table1', [], $this->adapter);
         $table->addColumn('priority', 'enum', [
             'values' => ['low', 'medium', 'high'],
-            'null'   => true,
+            'null' => true,
         ])->save();
 
         $columns = $this->adapter->getColumns('table1');
@@ -3341,8 +3341,8 @@ OUTPUT;
         $table->save();
 
         $table->addColumn('role', 'enum', [
-            'values'  => ['admin', 'editor', 'viewer'],
-            'null'    => false,
+            'values' => ['admin', 'editor', 'viewer'],
+            'null' => false,
             'default' => 'viewer',
         ])->save();
 
@@ -3406,8 +3406,8 @@ OUTPUT;
     {
         $table = new Table('table1', [], $this->adapter);
         $table->addColumn('status', 'enum', [
-            'values'  => ['pending', 'active', 'closed'],
-            'null'    => false,
+            'values' => ['pending', 'active', 'closed'],
+            'null' => false,
             'default' => 'pending',
         ])->save();
 
