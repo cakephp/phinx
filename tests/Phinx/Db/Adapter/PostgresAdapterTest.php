@@ -3214,4 +3214,211 @@ OUTPUT;
         $this->assertTrue($this->adapter->hasTable('tschema.events'));
         $this->assertTrue($this->adapter->hasColumn('tschema.events', 'level'));
     }
+
+    public function testCreateTableWithEnumColumnAndDefault()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('status', 'enum', [
+            'values'  => ['pending', 'active', 'archived'],
+            'null'    => false,
+            'default' => 'pending',
+        ])->save();
+
+        $this->assertTrue($this->adapter->hasColumn('table1', 'status'));
+
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'status') {
+                $this->assertEquals('enum', $column->getType());
+                $this->assertEquals('pending', $column->getDefault());
+                $this->assertFalse($column->isNull());
+            }
+        }
+    }
+
+    public function testNullableEnumColumnRoundTrip()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('priority', 'enum', [
+            'values' => ['low', 'medium', 'high'],
+            'null'   => true,
+        ])->save();
+
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'priority') {
+                $this->assertEquals('enum', $column->getType());
+                $this->assertEquals(['low', 'medium', 'high'], $column->getValues());
+                $this->assertTrue($column->isNull());
+            }
+        }
+    }
+
+    public function testDropNonEnumColumnKeepsEnumType()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => ['on', 'off']])
+              ->addColumn('name', 'string')
+              ->save();
+
+        $this->assertTrue($this->adapter->hasColumn('table1', 'status'));
+        $this->assertTrue($this->adapter->hasColumn('table1', 'name'));
+
+        // Drop the non-enum column
+        $table->removeColumn('name')->save();
+
+        $this->assertFalse($this->adapter->hasColumn('table1', 'name'));
+        $this->assertTrue($this->adapter->hasColumn('table1', 'status'));
+
+        // The enum type should still exist
+        $result = $this->adapter->fetchRow(
+            "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'table1_status' AND typtype = 'e') AS type_exists",
+        );
+        $this->assertTrue((bool)$result['type_exists'], 'Enum type should not be dropped when removing a non-enum column');
+    }
+
+    public function testDropTableWithMixedEnumAndNonEnumColumns()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => ['on', 'off']])
+              ->addColumn('name', 'string')
+              ->addColumn('age', 'integer')
+              ->save();
+
+        $table->drop()->save();
+
+        $this->assertFalse($this->adapter->hasTable('table1'));
+
+        // Enum type should be cleaned up
+        $result = $this->adapter->fetchRow(
+            "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'table1_status' AND typtype = 'e') AS type_exists",
+        );
+        $this->assertFalse((bool)$result['type_exists'], 'Enum type should be dropped with the table');
+
+        // Non-enum columns should not leave orphaned types
+        $result = $this->adapter->fetchRow(
+            "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'table1_name' AND typtype = 'e') AS type_exists",
+        );
+        $this->assertFalse((bool)$result['type_exists'], 'No orphan type for non-enum column');
+    }
+
+    public function testGetColumnsWithEnumAndLiteralUserDefinedType()
+    {
+        // Create a table with both an enum column and a citext (USER-DEFINED, non-enum) column
+        $table = new Table('table1', ['id' => false], $this->adapter);
+        $table->addColumn('mood', 'enum', ['values' => ['happy', 'sad']])
+              ->addColumn('label', Literal::from('citext'))
+              ->save();
+
+        $columns = $this->adapter->getColumns('table1');
+        $this->assertCount(2, $columns);
+
+        $moodColumn = null;
+        $labelColumn = null;
+        foreach ($columns as $column) {
+            if ($column->getName() === 'mood') {
+                $moodColumn = $column;
+            }
+            if ($column->getName() === 'label') {
+                $labelColumn = $column;
+            }
+        }
+
+        // Enum column should come back as PHINX_TYPE_ENUM with values
+        $this->assertNotNull($moodColumn);
+        $this->assertEquals('enum', $moodColumn->getType());
+        $this->assertEquals(['happy', 'sad'], $moodColumn->getValues());
+
+        // citext column should remain a Literal (USER-DEFINED non-enum)
+        $this->assertNotNull($labelColumn);
+        $this->assertInstanceOf(Literal::class, $labelColumn->getType());
+        $this->assertEquals('citext', (string)$labelColumn->getType());
+    }
+
+    public function testAddEnumColumnWithDefaultValue()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table->addColumn('role', 'enum', [
+            'values'  => ['admin', 'editor', 'viewer'],
+            'null'    => false,
+            'default' => 'viewer',
+        ])->save();
+
+        $this->assertTrue($this->adapter->hasColumn('table1', 'role'));
+
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'role') {
+                $this->assertEquals('enum', $column->getType());
+                $this->assertEquals(['admin', 'editor', 'viewer'], $column->getValues());
+                $this->assertEquals('viewer', $column->getDefault());
+                $this->assertFalse($column->isNull());
+            }
+        }
+    }
+
+    public function testChangeColumnPreservesEnumOnOtherColumns()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => ['active', 'inactive']])
+              ->addColumn('name', 'string', ['limit' => 50])
+              ->save();
+
+        // Change the non-enum column
+        $newColumn = new Column();
+        $newColumn->setName('name')
+                  ->setType('string')
+                  ->setLimit(100);
+
+        $table->changeColumn('name', $newColumn)->save();
+
+        // Verify the enum column is intact
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'status') {
+                $this->assertEquals('enum', $column->getType());
+                $this->assertEquals(['active', 'inactive'], $column->getValues());
+            }
+            if ($column->getName() === 'name') {
+                $this->assertEquals('100', $column->getLimit());
+            }
+        }
+    }
+
+    public function testEnumValuesOrderIsPreserved()
+    {
+        $values = ['zebra', 'apple', 'mango', 'banana'];
+
+        $table = new Table('table1', ['id' => false], $this->adapter);
+        $table->addColumn('fruit', 'enum', ['values' => $values])->save();
+
+        $columns = $this->adapter->getColumns('table1');
+        foreach ($columns as $column) {
+            if ($column->getName() === 'fruit') {
+                $this->assertSame($values, $column->getValues(), 'Enum values should preserve insertion order');
+            }
+        }
+    }
+
+    public function testInsertDataWithEnumColumn()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('status', 'enum', [
+            'values'  => ['pending', 'active', 'closed'],
+            'null'    => false,
+            'default' => 'pending',
+        ])->save();
+
+        $table->insert([
+            ['status' => 'active'],
+            ['status' => 'closed'],
+        ])->save();
+
+        $rows = $this->adapter->fetchAll('SELECT status FROM table1 ORDER BY id');
+        $this->assertCount(2, $rows);
+        $this->assertEquals('active', $rows[0]['status']);
+        $this->assertEquals('closed', $rows[1]['status']);
+    }
 }
