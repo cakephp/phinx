@@ -310,14 +310,18 @@ class PostgresAdapter extends PdoAdapter
         foreach ($columns as $column) {
             if ($column->getType() === static::PHINX_TYPE_ENUM) {
                 $values = $column->getValues();
-                if (!empty($values)) {
-                    $typeName = $this->getEnumTypeName($table->getName(), $column->getName());
-                    $queries[] = sprintf(
-                        'CREATE TYPE %s AS ENUM (%s)',
-                        $this->quoteColumnName($typeName),
-                        implode(', ', array_map(fn($v) => $this->getConnection()->quote($v), $values)),
-                    );
+                if (empty($values)) {
+                    throw new InvalidArgumentException(sprintf(
+                        'Column "%s" is of type enum but has no values defined.',
+                        $column->getName(),
+                    ));
                 }
+                $typeName = $this->getEnumTypeName($table->getName(), $column->getName());
+                $queries[] = sprintf(
+                    'CREATE TYPE %s AS ENUM (%s)',
+                    $this->quoteColumnName($typeName),
+                    implode(', ', array_map(fn($v) => $this->getConnection()->quote($v), $values)),
+                );
             }
         }
 
@@ -438,14 +442,18 @@ class PostgresAdapter extends PdoAdapter
      */
     protected function getDropTableInstructions(string $tableName): AlterInstructions
     {
+        $parts = $this->getSchemaName($tableName);
         $this->removeCreatedTable($tableName);
         $sql = sprintf('DROP TABLE %s', $this->quoteTableName($tableName));
         $instructions = new AlterInstructions([], [$sql]);
 
-        // Drop any Phinx-managed enum types associated with this table's columns
+        // Drop any Phinx-managed enum types associated with this table's enum columns
         foreach ($this->getColumns($tableName) as $column) {
+            if ($column->getType() !== static::PHINX_TYPE_ENUM) {
+                continue;
+            }
             $typeName = $this->getEnumTypeName($tableName, $column->getName());
-            if ($this->hasEnumType($typeName)) {
+            if ($this->hasEnumType($typeName, $parts['schema'])) {
                 $instructions->addPostStep(sprintf(
                     'DROP TYPE %s',
                     $this->quoteColumnName($typeName),
@@ -494,7 +502,7 @@ class PostgresAdapter extends PdoAdapter
             $enumValues = null;
 
             if ($isUserDefined) {
-                $enumValues = $this->getEnumTypeValues($columnInfo['udt_name']);
+                $enumValues = $this->getEnumTypeValues($columnInfo['udt_name'], $parts['schema']);
                 if ($enumValues !== null) {
                     $columnType = static::PHINX_TYPE_ENUM;
                 } else {
@@ -583,19 +591,23 @@ class PostgresAdapter extends PdoAdapter
      */
     protected function getAddColumnInstructions(Table $table, Column $column): AlterInstructions
     {
+        $instructions = new AlterInstructions();
+
         if ($column->getType() === static::PHINX_TYPE_ENUM) {
             $values = $column->getValues();
-            if (!empty($values)) {
-                $typeName = $this->getEnumTypeName($table->getName(), $column->getName());
-                $this->execute(sprintf(
-                    'CREATE TYPE %s AS ENUM (%s)',
-                    $this->quoteColumnName($typeName),
-                    implode(', ', array_map(fn($v) => $this->getConnection()->quote($v), $values)),
+            if (empty($values)) {
+                throw new InvalidArgumentException(sprintf(
+                    'Column "%s" is of type enum but has no values defined.',
+                    $column->getName(),
                 ));
             }
+            $typeName = $this->getEnumTypeName($table->getName(), $column->getName());
+            $instructions->addPreStep(sprintf(
+                'CREATE TYPE %s AS ENUM (%s)',
+                $this->quoteColumnName($typeName),
+                implode(', ', array_map(fn($v) => $this->getConnection()->quote($v), $values)),
+            ));
         }
-
-        $instructions = new AlterInstructions();
         $instructions->addAlter(sprintf(
             'ADD %s %s %s',
             $this->quoteColumnName($column->getName()),
@@ -790,8 +802,9 @@ class PostgresAdapter extends PdoAdapter
         $instructions = new AlterInstructions([$alter]);
 
         // Drop the associated Phinx-managed enum type if it exists
+        $parts = $this->getSchemaName($tableName);
         $typeName = $this->getEnumTypeName($tableName, $columnName);
-        if ($this->hasEnumType($typeName)) {
+        if ($this->hasEnumType($typeName, $parts['schema'])) {
             $instructions->addPostStep(sprintf(
                 'DROP TYPE %s',
                 $this->quoteColumnName($typeName),
@@ -1386,9 +1399,10 @@ class PostgresAdapter extends PdoAdapter
      * type does not exist or is not an enum.
      *
      * @param string $typeName Type name (unqualified)
+     * @param string|null $schemaName Schema name (defaults to adapter schema)
      * @return string[]|null
      */
-    protected function getEnumTypeValues(string $typeName): ?array
+    protected function getEnumTypeValues(string $typeName, ?string $schemaName = null): ?array
     {
         $sql = sprintf(
             "SELECT e.enumlabel
@@ -1398,7 +1412,7 @@ class PostgresAdapter extends PdoAdapter
              WHERE t.typname = %s AND t.typtype = 'e' AND n.nspname = %s
              ORDER BY e.enumsortorder",
             $this->getConnection()->quote($typeName),
-            $this->getConnection()->quote($this->schema),
+            $this->getConnection()->quote($schemaName ?? $this->schema),
         );
         $rows = $this->fetchAll($sql);
 
@@ -1407,12 +1421,13 @@ class PostgresAdapter extends PdoAdapter
 
     /**
      * Returns true if a PostgreSQL enum type with the given unqualified name exists in the
-     * current schema.
+     * given schema.
      *
      * @param string $typeName Type name (unqualified)
+     * @param string|null $schemaName Schema name (defaults to adapter schema)
      * @return bool
      */
-    protected function hasEnumType(string $typeName): bool
+    protected function hasEnumType(string $typeName, ?string $schemaName = null): bool
     {
         $sql = sprintf(
             "SELECT EXISTS(
@@ -1421,7 +1436,7 @@ class PostgresAdapter extends PdoAdapter
                 WHERE t.typname = %s AND t.typtype = 'e' AND n.nspname = %s
             ) AS type_exists",
             $this->getConnection()->quote($typeName),
-            $this->getConnection()->quote($this->schema),
+            $this->getConnection()->quote($schemaName ?? $this->schema),
         );
         $result = $this->fetchRow($sql);
 

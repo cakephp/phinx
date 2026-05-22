@@ -3227,13 +3227,18 @@ OUTPUT;
         $this->assertTrue($this->adapter->hasColumn('table1', 'status'));
 
         $columns = $this->adapter->getColumns('table1');
+        $statusColumn = null;
         foreach ($columns as $column) {
             if ($column->getName() === 'status') {
-                $this->assertEquals('enum', $column->getType());
-                $this->assertEquals('pending', $column->getDefault());
-                $this->assertFalse($column->isNull());
+                $statusColumn = $column;
+                break;
             }
         }
+
+        $this->assertNotNull($statusColumn, 'Column status should exist');
+        $this->assertEquals('enum', $statusColumn->getType());
+        $this->assertEquals('pending', $statusColumn->getDefault());
+        $this->assertFalse($statusColumn->isNull());
     }
 
     public function testNullableEnumColumnRoundTrip()
@@ -3245,13 +3250,18 @@ OUTPUT;
         ])->save();
 
         $columns = $this->adapter->getColumns('table1');
+        $priorityColumn = null;
         foreach ($columns as $column) {
             if ($column->getName() === 'priority') {
-                $this->assertEquals('enum', $column->getType());
-                $this->assertEquals(['low', 'medium', 'high'], $column->getValues());
-                $this->assertTrue($column->isNull());
+                $priorityColumn = $column;
+                break;
             }
         }
+
+        $this->assertNotNull($priorityColumn, 'Column priority should exist');
+        $this->assertEquals('enum', $priorityColumn->getType());
+        $this->assertEquals(['low', 'medium', 'high'], $priorityColumn->getValues());
+        $this->assertTrue($priorityColumn->isNull());
     }
 
     public function testDropNonEnumColumnKeepsEnumType()
@@ -3349,14 +3359,19 @@ OUTPUT;
         $this->assertTrue($this->adapter->hasColumn('table1', 'role'));
 
         $columns = $this->adapter->getColumns('table1');
+        $roleColumn = null;
         foreach ($columns as $column) {
             if ($column->getName() === 'role') {
-                $this->assertEquals('enum', $column->getType());
-                $this->assertEquals(['admin', 'editor', 'viewer'], $column->getValues());
-                $this->assertEquals('viewer', $column->getDefault());
-                $this->assertFalse($column->isNull());
+                $roleColumn = $column;
+                break;
             }
         }
+
+        $this->assertNotNull($roleColumn, 'Column role should exist');
+        $this->assertEquals('enum', $roleColumn->getType());
+        $this->assertEquals(['admin', 'editor', 'viewer'], $roleColumn->getValues());
+        $this->assertEquals('viewer', $roleColumn->getDefault());
+        $this->assertFalse($roleColumn->isNull());
     }
 
     public function testChangeColumnPreservesEnumOnOtherColumns()
@@ -3376,15 +3391,23 @@ OUTPUT;
 
         // Verify the enum column is intact
         $columns = $this->adapter->getColumns('table1');
+        $statusColumn = null;
+        $nameColumn = null;
         foreach ($columns as $column) {
             if ($column->getName() === 'status') {
-                $this->assertEquals('enum', $column->getType());
-                $this->assertEquals(['active', 'inactive'], $column->getValues());
+                $statusColumn = $column;
             }
             if ($column->getName() === 'name') {
-                $this->assertEquals('100', $column->getLimit());
+                $nameColumn = $column;
             }
         }
+
+        $this->assertNotNull($statusColumn, 'Column status should exist');
+        $this->assertEquals('enum', $statusColumn->getType());
+        $this->assertEquals(['active', 'inactive'], $statusColumn->getValues());
+
+        $this->assertNotNull($nameColumn, 'Column name should exist');
+        $this->assertEquals('100', $nameColumn->getLimit());
     }
 
     public function testEnumValuesOrderIsPreserved()
@@ -3395,11 +3418,16 @@ OUTPUT;
         $table->addColumn('fruit', 'enum', ['values' => $values])->save();
 
         $columns = $this->adapter->getColumns('table1');
+        $fruitColumn = null;
         foreach ($columns as $column) {
             if ($column->getName() === 'fruit') {
-                $this->assertSame($values, $column->getValues(), 'Enum values should preserve insertion order');
+                $fruitColumn = $column;
+                break;
             }
         }
+
+        $this->assertNotNull($fruitColumn, 'Column fruit should exist');
+        $this->assertSame($values, $fruitColumn->getValues(), 'Enum values should preserve insertion order');
     }
 
     public function testInsertDataWithEnumColumn()
@@ -3420,5 +3448,25 @@ OUTPUT;
         $this->assertCount(2, $rows);
         $this->assertEquals('active', $rows[0]['status']);
         $this->assertEquals('closed', $rows[1]['status']);
+    }
+
+    public function testCreateTableWithEnumColumnWithoutValuesThrows()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Column "status" is of type enum but has no values defined.');
+
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('status', 'enum', [])->save();
+    }
+
+    public function testAddEnumColumnWithoutValuesThrows()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Column "role" is of type enum but has no values defined.');
+
+        $table = new Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table->addColumn('role', 'enum', [])->save();
     }
 }
