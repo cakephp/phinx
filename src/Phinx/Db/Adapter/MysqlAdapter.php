@@ -971,6 +971,7 @@ class MysqlAdapter extends PdoAdapter
             $tableName,
         ));
         foreach ($rows as $row) {
+            $foreignKeys[$row['CONSTRAINT_NAME']]['constraint'] = $row['CONSTRAINT_NAME'];
             $foreignKeys[$row['CONSTRAINT_NAME']]['table'] = $row['TABLE_NAME'];
             $foreignKeys[$row['CONSTRAINT_NAME']]['columns'][] = $row['COLUMN_NAME'];
             $foreignKeys[$row['CONSTRAINT_NAME']]['referenced_table'] = $row['REFERENCED_TABLE_NAME'];
@@ -999,7 +1000,7 @@ class MysqlAdapter extends PdoAdapter
     protected function getDropForeignKeyInstructions(string $tableName, string $constraint): AlterInstructions
     {
         $alter = sprintf(
-            'DROP FOREIGN KEY %s',
+            'DROP FOREIGN KEY `%s`',
             $constraint,
         );
 
@@ -1019,9 +1020,9 @@ class MysqlAdapter extends PdoAdapter
 
         $matches = [];
         $foreignKeys = $this->getForeignKeys($tableName);
-        foreach ($foreignKeys as $name => $key) {
-            if (array_map('mb_strtolower', $key['columns']) === $columns) {
-                $matches[] = $name;
+        foreach ($foreignKeys as $foreignKey) {
+            if (array_map('mb_strtolower', $foreignKey['columns']) === $columns) {
+                $matches[] = $foreignKey['constraint'];
             }
         }
 
