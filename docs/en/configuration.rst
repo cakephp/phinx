@@ -501,7 +501,7 @@ You may override how phinx generates the template used with in a handful of ways
 * style - style to use for template, either ``change`` or ``up_down``, defaults to ``change`` if not set.
 
 You should only use one of these options. These can be overridden by passing command line options to the
-:doc:`Create Command <commands`. Example usage within the config file is:
+:doc:`Create Command <commands>`. Example usage within the config file is:
 
 .. code-block:: yaml
 
