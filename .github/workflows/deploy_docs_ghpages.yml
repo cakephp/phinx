@@ -1,0 +1,65 @@
+---
+name: 'deploy_docs_ghpages'
+
+on:
+  push:
+    tags:
+      - 0.*
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch to run on
+        default: 0.x
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cloning repo
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Sphinx and theme
+        run: pip install sphinx furo
+
+      - name: Build docs
+        run: |
+          sphinx-build -b html -c docs/gh-pages docs/en _site
+          touch _site/.nojekyll
+
+      - name: Deploy to gh-pages (docs/ subpath)
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Check out the existing gh-pages branch in a separate worktree so we
+          # only touch the docs/ subpath and leave the root landing page,
+          # CNAME, and .nojekyll intact.
+          git fetch origin gh-pages
+          git worktree add gh-pages-publish origin/gh-pages
+
+          # Replace docs/ wholesale so renamed/removed pages don't linger.
+          rm -rf gh-pages-publish/docs
+          mkdir -p gh-pages-publish/docs
+          cp -R _site/. gh-pages-publish/docs/
+
+          cd gh-pages-publish
+          git add docs
+          if git diff --cached --quiet; then
+            echo "No documentation changes to publish."
+            exit 0
+          fi
+          git commit -m "Deploy docs to gh-pages/docs (${GITHUB_SHA})"
+          git push origin HEAD:gh-pages
