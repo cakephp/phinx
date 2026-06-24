@@ -1,0 +1,835 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="copyright" title="Copyright" href="copyright.html"><link rel="next" title="Copyright" href="copyright.html"><link rel="prev" title="Commands" href="commands.html">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Configuration - Phinx Documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="contents.html"><div class="brand">Phinx Documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="contents.html">
+  
+  <span class="sidebar-brand-text">Phinx Documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Phinx</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="goals.html">Goals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrations.html">Writing Migrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seeding.html">Database Seeding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commands.html">Commands</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">Copyright</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="https://github.com/cakephp/phinx/blob/0.x/docs/en/configuration.rst?plain=true" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/cakephp/phinx/edit/0.x/docs/en/configuration.rst" rel="edit" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="configuration">
+<span id="index-0"></span><h1>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h1>
+<p>When you initialize your project using the <a class="reference internal" href="commands.html"><span class="doc">Init Command</span></a>, Phinx
+creates a default file in the root of your project directory. By default, this
+file uses the YAML data serialization format, but you can use the <code class="docutils literal notranslate"><span class="pre">--format</span></code>
+command line option to specify either <code class="docutils literal notranslate"><span class="pre">yaml</span></code>, <code class="docutils literal notranslate"><span class="pre">yml</span></code>, <code class="docutils literal notranslate"><span class="pre">json</span></code>, or <code class="docutils literal notranslate"><span class="pre">php</span></code>.</p>
+<p>If a <code class="docutils literal notranslate"><span class="pre">--configuration</span></code> command line option is given, Phinx will load the
+specified file. Otherwise, it will attempt to find <code class="docutils literal notranslate"><span class="pre">phinx.php</span></code>, <code class="docutils literal notranslate"><span class="pre">phinx.json</span></code>,
+<code class="docutils literal notranslate"><span class="pre">phinx.yml</span></code>, or <code class="docutils literal notranslate"><span class="pre">phinx.yaml</span></code> and load the first file found. See the
+<a class="reference internal" href="commands.html"><span class="doc">Commands</span></a> chapter for more information.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Remember to store the configuration file outside of a publicly accessible
+directory on your webserver. This file contains your database credentials
+and may be accidentally served as plain text.</p>
+</div>
+<p>Note that while JSON and YAML files are <em>parsed</em>, the PHP file is <em>included</em>.
+This means that:</p>
+<ul class="simple">
+<li><p>It must <cite>return</cite> an array of configuration items.</p></li>
+<li><p>The variable scope is local, i.e. you would need to explicitly declare
+any global variables your initialization file reads or modifies.</p></li>
+<li><p>Its standard output is suppressed.</p></li>
+<li><p>Unlike with JSON and YAML, it is possible to omit environment connection details
+and instead specify <code class="docutils literal notranslate"><span class="pre">connection</span></code> which must contain an initialized PDO instance.
+This is useful when you want your migrations to interact with your application
+and/or share the same connection. However remember to also pass the database name
+as Phinx cannot infer this from the PDO connection.</p></li>
+</ul>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="x">$app = require &#39;app/phinx.php&#39;;</span>
+<span class="x">$pdo = $app-&gt;getDatabase()-&gt;getPdo();</span>
+
+<span class="x">return [</span>
+<span class="x">    &#39;environments&#39; =&gt; [</span>
+<span class="x">        &#39;default_environment&#39; =&gt; &#39;development&#39;,</span>
+<span class="x">        &#39;development&#39; =&gt; [</span>
+<span class="x">            &#39;name&#39; =&gt; &#39;devdb&#39;,</span>
+<span class="x">            &#39;connection&#39; =&gt; $pdo</span>
+<span class="x">        ]</span>
+<span class="x">    ]</span>
+<span class="x">];</span>
+</pre></div>
+</div>
+<section id="migration-paths">
+<h2>Migration Paths<a class="headerlink" href="#migration-paths" title="Link to this heading">¶</a></h2>
+<p>The first option specifies the path to your migration directory. Phinx uses
+<code class="docutils literal notranslate"><span class="pre">%%PHINX_CONFIG_DIR%%/db/migrations</span></code> by default.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">%%PHINX_CONFIG_DIR%%</span></code> is a special token and is automatically replaced
+with the root directory where your phinx configuration file is stored.</p>
+</div>
+<p>In order to overwrite the default <code class="docutils literal notranslate"><span class="pre">%%PHINX_CONFIG_DIR%%/db/migrations</span></code>, you
+need to add the following to the configuration.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">migrations</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/your/full/path</span>
+</pre></div>
+</div>
+<p>You can also provide multiple migration paths by using an array in your configuration:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">migrations</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application/module1/migrations</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application/module2/migrations</span>
+</pre></div>
+</div>
+<p>Class namespaces may be specified by adding a key to each migration path:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">migrations</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">App\Module1\Migrations</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application/module1/migrations</span>
+<span class="w">        </span><span class="nt">App\Module2\Migrations</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application/module2/migrations</span>
+</pre></div>
+</div>
+<p>You can also use the <code class="docutils literal notranslate"><span class="pre">%%PHINX_CONFIG_DIR%%</span></code> token in your path.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">migrations</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;%%PHINX_CONFIG_DIR%%/your/relative/path&#39;</span>
+</pre></div>
+</div>
+<p>Migrations are captured with <code class="docutils literal notranslate"><span class="pre">glob</span></code>, so you can define a pattern for multiple
+directories.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">migrations</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;%%PHINX_CONFIG_DIR%%/module/*/{data,scripts}/migrations&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-migration-base">
+<h2>Custom Migration Base<a class="headerlink" href="#custom-migration-base" title="Link to this heading">¶</a></h2>
+<p>By default all migrations will extend from Phinx’s <cite>AbstractMigration</cite> class.
+This can be set to a custom class that extends from <cite>AbstractMigration</cite> by
+setting <code class="docutils literal notranslate"><span class="pre">migration_base_class</span></code> in your config:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">migration_base_class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MyMagicalMigration</span>
+</pre></div>
+</div>
+</section>
+<section id="seed-paths">
+<h2>Seed Paths<a class="headerlink" href="#seed-paths" title="Link to this heading">¶</a></h2>
+<p>The second option specifies the path to your seed directory. Phinx uses
+<code class="docutils literal notranslate"><span class="pre">%%PHINX_CONFIG_DIR%%/db/seeds</span></code> by default.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">%%PHINX_CONFIG_DIR%%</span></code> is a special token and is automatically replaced
+with the root directory where your configuration file is stored.</p>
+</div>
+<p>In order to overwrite the default <code class="docutils literal notranslate"><span class="pre">%%PHINX_CONFIG_DIR%%/db/seeds</span></code>, you
+need to add the following to the yaml configuration.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">seeds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/your/full/path</span>
+</pre></div>
+</div>
+<p>You can also provide multiple seed paths by using an array in your configuration:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">seeds</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/your/full/path1</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/your/full/path2</span>
+</pre></div>
+</div>
+<p>You can also use the <code class="docutils literal notranslate"><span class="pre">%%PHINX_CONFIG_DIR%%</span></code> token in your path.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">seeds</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;%%PHINX_CONFIG_DIR%%/your/relative/path&#39;</span>
+</pre></div>
+</div>
+<p>Class namespaces may be specified by adding a key to each seed path:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">seeds</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">App\Module1\Seeds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application/module1/seeds</span>
+<span class="w">        </span><span class="nt">App\Module2\Seeds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application/module2/seeds</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-seeder-base">
+<h2>Custom Seeder Base<a class="headerlink" href="#custom-seeder-base" title="Link to this heading">¶</a></h2>
+<p>By default all seeders will extend from Phinx’s <cite>AbstractSeed</cite> class.
+This can be set to a custom class that extends from <cite>AbstractSeed</cite> by
+setting <code class="docutils literal notranslate"><span class="pre">seed_base_class</span></code> in your config:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">seed_base_class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MyMagicalSeeder</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-migration-template">
+<h2>Custom Migration Template<a class="headerlink" href="#custom-migration-template" title="Link to this heading">¶</a></h2>
+<p>Custom template for Migrations could be used either by defining template file path
+in configuration file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">templates</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src/templates/customMigrationTemplate.php</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-seeder-template">
+<h2>Custom Seeder Template<a class="headerlink" href="#custom-seeder-template" title="Link to this heading">¶</a></h2>
+<p>Custom Seeder template could be used either by defining template file path
+in configuration file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">templates</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">seedFile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src/templates/customSeederTemplate.php</span>
+</pre></div>
+</div>
+</section>
+<section id="environments">
+<h2>Environments<a class="headerlink" href="#environments" title="Link to this heading">¶</a></h2>
+<p>One of the key features of Phinx is support for multiple database environments.
+You can use Phinx to create migrations on your development environment, then
+run the same migrations on your production environment. Environments are
+specified under the <code class="docutils literal notranslate"><span class="pre">environments</span></code> nested collection. For example:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">environments</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">default_migration_table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">phinxlog</span>
+<span class="w">    </span><span class="nt">default_environment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">development</span>
+<span class="w">    </span><span class="nt">production</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">adapter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql</span>
+<span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localhost</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">production_db</span>
+<span class="w">        </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">root</span>
+<span class="w">        </span><span class="nt">pass</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3306</span>
+<span class="w">        </span><span class="nt">charset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">utf8mb4</span>
+<span class="w">        </span><span class="nt">collation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">utf8mb4_unicode_ci</span>
+</pre></div>
+</div>
+<p>would define a new environment called <code class="docutils literal notranslate"><span class="pre">production</span></code>.</p>
+<p>In a situation when multiple developers work on the same project and each has
+a different environment (e.g. a convention such as <code class="docutils literal notranslate"><span class="pre">&lt;environment</span>
+<span class="pre">type&gt;-&lt;developer</span> <span class="pre">name&gt;-&lt;machine</span> <span class="pre">name&gt;</span></code>), or when you need to have separate
+environments for separate purposes (branches, testing, etc) use environment
+variable <cite>PHINX_ENVIRONMENT</cite> to override the default environment in the yaml
+file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PHINX_ENVIRONMENT</span><span class="o">=</span>dev-<span class="sb">`</span>whoami<span class="sb">`</span>-<span class="sb">`</span>hostname<span class="sb">`</span>
+</pre></div>
+</div>
+</section>
+<section id="migration-table">
+<h2>Migration Table<a class="headerlink" href="#migration-table" title="Link to this heading">¶</a></h2>
+<p>To keep track of the migration statuses for an environment, phinx creates
+a table to store this information. You can customize where this table
+is created by configuring <code class="docutils literal notranslate"><span class="pre">default_migration_table</span></code> to be used as default
+for all environments:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">default_migration_table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">phinxlog</span>
+</pre></div>
+</div>
+<p>If this field is omitted, then it will default to <code class="docutils literal notranslate"><span class="pre">phinxlog</span></code>. For
+databases that support it, e.g. Postgres, the schema name can be prefixed
+with a period separator (<code class="docutils literal notranslate"><span class="pre">.</span></code>). For example, <code class="docutils literal notranslate"><span class="pre">phinx.log</span></code> will create
+the table <code class="docutils literal notranslate"><span class="pre">log</span></code> in the <code class="docutils literal notranslate"><span class="pre">phinx</span></code> schema instead of <code class="docutils literal notranslate"><span class="pre">phinxlog</span></code> in the
+<code class="docutils literal notranslate"><span class="pre">public</span></code> (default) schema.</p>
+<p>You may also specify the <code class="docutils literal notranslate"><span class="pre">migration_table</span></code> on a per environment basis.
+Any environment that does not have a <code class="docutils literal notranslate"><span class="pre">migration_table</span></code> specified will
+fallback to using the <code class="docutils literal notranslate"><span class="pre">default_migration_table</span></code> that is defined at the
+top level. An example of how you might use this is as follows:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">default_migration_table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">phinxlog</span>
+<span class="w">    </span><span class="nt">development</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">migration_table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">phinxlog_dev</span>
+<span class="w">        </span><span class="c1"># rest of the development settings</span>
+<span class="w">    </span><span class="nt">production</span><span class="p">:</span>
+<span class="w">        </span><span class="c1"># rest of the production settings</span>
+</pre></div>
+</div>
+<p>In the above example, <code class="docutils literal notranslate"><span class="pre">development</span></code> will look to the <code class="docutils literal notranslate"><span class="pre">phinxlog_dev</span></code>
+table for migration statues while <code class="docutils literal notranslate"><span class="pre">production</span></code> will use <code class="docutils literal notranslate"><span class="pre">phinxlog</span></code>.</p>
+</section>
+<section id="table-prefix-and-suffix">
+<h2>Table Prefix and Suffix<a class="headerlink" href="#table-prefix-and-suffix" title="Link to this heading">¶</a></h2>
+<p>You can define a table prefix and table suffix:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">environments</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">development</span><span class="p">:</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">....</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">table_prefix</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dev_</span>
+<span class="w">        </span><span class="nt">table_suffix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_v1</span>
+<span class="w">    </span><span class="nt">testing</span><span class="p">:</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">....</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">table_prefix</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test_</span>
+<span class="w">        </span><span class="nt">table_suffix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_v2</span>
+</pre></div>
+</div>
+</section>
+<section id="socket-connections">
+<h2>Socket Connections<a class="headerlink" href="#socket-connections" title="Link to this heading">¶</a></h2>
+<p>When using the MySQL adapter, it is also possible to use sockets instead of
+network connections. The socket path is configured with <code class="docutils literal notranslate"><span class="pre">unix_socket</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">environments</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">default_migration_table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">phinxlog</span>
+<span class="w">    </span><span class="nt">default_environment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">development</span>
+<span class="w">    </span><span class="nt">production</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">adapter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">production_db</span>
+<span class="w">        </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">root</span>
+<span class="w">        </span><span class="nt">pass</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">        </span><span class="nt">unix_socket</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/run/mysql/mysql.sock</span>
+<span class="w">        </span><span class="nt">charset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">utf8</span>
+</pre></div>
+</div>
+</section>
+<section id="external-variables">
+<h2>External Variables<a class="headerlink" href="#external-variables" title="Link to this heading">¶</a></h2>
+<p>Phinx will automatically grab any environment variable prefixed with <code class="docutils literal notranslate"><span class="pre">PHINX_</span></code>
+and make it available as a token in the config file. The token will have
+exactly the same name as the variable but you must access it by wrapping two
+<code class="docutils literal notranslate"><span class="pre">%%</span></code> symbols on either side. e.g: <code class="docutils literal notranslate"><span class="pre">'%%PHINX_DBUSER%%'</span></code>. This is especially
+useful if you wish to store your secret database credentials directly on the
+server and not in a version control system. This feature can be easily
+demonstrated by the following example:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">environments</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">default_migration_table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">phinxlog</span>
+<span class="w">    </span><span class="nt">default_environment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">development</span>
+<span class="w">    </span><span class="nt">production</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">adapter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql</span>
+<span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;%%PHINX_DBHOST%%&#39;</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;%%PHINX_DBNAME%%&#39;</span>
+<span class="w">        </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;%%PHINX_DBUSER%%&#39;</span>
+<span class="w">        </span><span class="nt">pass</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;%%PHINX_DBPASS%%&#39;</span>
+<span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3306</span>
+<span class="w">        </span><span class="nt">charset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">utf8</span>
+</pre></div>
+</div>
+</section>
+<section id="data-source-names">
+<h2>Data Source Names<a class="headerlink" href="#data-source-names" title="Link to this heading">¶</a></h2>
+<p>Phinx supports the use of data source names (DSN) to specify the connection
+options, which can be useful if you use a single environment variable to hold
+the database credentials. PDO has a different DSN formats depending on the
+underlying driver, so Phinx uses a database-agnostic DSN format used by other
+projects (Doctrine, Rails, AMQP, PaaS, etc).</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;adapter&gt;://[&lt;user&gt;[:&lt;pass&gt;]@]&lt;host&gt;[:&lt;port&gt;]/&lt;name&gt;[?&lt;additionalOptions&gt;]
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>A DSN requires at least <code class="docutils literal notranslate"><span class="pre">adapter</span></code>, <code class="docutils literal notranslate"><span class="pre">host</span></code> and <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p></li>
+<li><p>You cannot specify a password without a username.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">port</span></code> must be a positive integer.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">additionalOptions</span></code> takes the form of a query string, and will be passed to
+the adapter in the options array.</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">environments</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">default_migration_table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">phinxlog</span>
+<span class="w">    </span><span class="nt">default_environment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">development</span>
+<span class="w">    </span><span class="nt">production</span><span class="p">:</span>
+<span class="w">        </span><span class="c1"># Example data source name</span>
+<span class="w">        </span><span class="nt">dsn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql://root@localhost:3306/mydb?charset=utf8</span>
+</pre></div>
+</div>
+<p>Once a DSN is parsed, it’s values are merged with the already existing
+connection options. Values in specified in a DSN will never override any value
+specified directly as connection options.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">environments</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">default_migration_table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">phinxlog</span>
+<span class="w">    </span><span class="nt">default_environment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">development</span>
+<span class="w">    </span><span class="nt">development</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">dsn</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;%%DATABASE_URL%%&#39;</span>
+<span class="w">    </span><span class="nt">production</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">dsn</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;%%DATABASE_URL%%&#39;</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">production_database</span>
+</pre></div>
+</div>
+<p>If the supplied DSN is invalid, then it is completely ignored.</p>
+</section>
+<section id="supported-adapters">
+<h2>Supported Adapters<a class="headerlink" href="#supported-adapters" title="Link to this heading">¶</a></h2>
+<p>Phinx currently supports the following database adapters natively:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.mysql.com/">MySQL</a>: specify the <code class="docutils literal notranslate"><span class="pre">mysql</span></code> adapter.</p></li>
+<li><p><a class="reference external" href="https://www.postgresql.org/">PostgreSQL</a>: specify the <code class="docutils literal notranslate"><span class="pre">pgsql</span></code> adapter.</p></li>
+<li><p><a class="reference external" href="https://www.sqlite.org/">SQLite</a>: specify the <code class="docutils literal notranslate"><span class="pre">sqlite</span></code> adapter.</p></li>
+<li><p><a class="reference external" href="https://www.microsoft.com/sqlserver">SQL Server</a>: specify the <code class="docutils literal notranslate"><span class="pre">sqlsrv</span></code> adapter.</p></li>
+</ul>
+<p>The following settings are available for the adapters:</p>
+<dl class="simple">
+<dt>adapter</dt><dd><p>The name of the adapter to use, e.g. <code class="docutils literal notranslate"><span class="pre">pgsql</span></code>.</p>
+</dd>
+<dt>host</dt><dd><p>The database server’s hostname (or IP address).</p>
+</dd>
+<dt>port</dt><dd><p>The database server’s TCP port number.</p>
+</dd>
+<dt>user</dt><dd><p>The username for the database.</p>
+</dd>
+<dt>pass</dt><dd><p>The password for the database.</p>
+</dd>
+<dt>name</dt><dd><p>The name of the database for this environment. For SQLite, it’s recommended to use an absolute path,
+without the file extension.</p>
+</dd>
+<dt>suffix</dt><dd><p>The suffix to use for the SQLite database file. Defaults to <code class="docutils literal notranslate"><span class="pre">.sqlite3</span></code>.</p>
+</dd>
+<dt>schema</dt><dd><p>For PostgreSQL, allows specifying the schema to use for the database. Defaults to <code class="docutils literal notranslate"><span class="pre">public</span></code>.</p>
+</dd>
+</dl>
+<p>For each adapter, you may configure the behavior of the underlying PDO object by setting in your
+config object the lowercase version of the constant name. This works for both PDO options
+(e.g. <code class="docutils literal notranslate"><span class="pre">\PDO::ATTR_CASE</span></code> would be <code class="docutils literal notranslate"><span class="pre">attr_case</span></code>) and adapter specific options (e.g. for MySQL
+you may set <code class="docutils literal notranslate"><span class="pre">\PDO::MYSQL_ATTR_IGNORE_SPACE</span></code> as <code class="docutils literal notranslate"><span class="pre">mysql_attr_ignore_space</span></code>). Please consult
+the <a class="reference external" href="https://www.php.net/manual/en/book.pdo.php">PDO documentation</a> for the allowed attributes
+and their values.</p>
+<p>For example, to set the above example options:</p>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="x">$config = [</span>
+<span class="x">    &quot;environments&quot; =&gt; [</span>
+<span class="x">        &quot;development&quot; =&gt; [</span>
+<span class="x">            &quot;adapter&quot; =&gt; &quot;mysql&quot;,</span>
+<span class="x">            # other adapter settings</span>
+<span class="x">            &quot;attr_case&quot; =&gt; \PDO::ATTR_CASE,</span>
+<span class="x">            &quot;mysql_attr_ignore_space&quot; =&gt; 1,</span>
+<span class="x">        ],</span>
+<span class="x">    ],</span>
+<span class="x">];</span>
+</pre></div>
+</div>
+<p>By default, the only attribute that Phinx sets is <code class="docutils literal notranslate"><span class="pre">\PDO::ATTR_ERRMODE</span></code> to <code class="docutils literal notranslate"><span class="pre">PDO::ERRMODE_EXCEPTION</span></code>. It is
+not recommended to override this.</p>
+<section id="id1">
+<h3>MySQL<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<p>The MySQL adapter has an unfortunate limitation in that certain actions cause an
+<a class="reference external" href="https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html">implicit commit</a> regardless of transaction
+state. Notably this list includes <code class="docutils literal notranslate"><span class="pre">CREATE</span> <span class="pre">TABLE</span></code>, <code class="docutils literal notranslate"><span class="pre">ALTER</span> <span class="pre">TABLE</span></code>, and <code class="docutils literal notranslate"><span class="pre">DROP</span> <span class="pre">TABLE</span></code>, which are the most
+common operations that Phinx will run. This means that unlike other adapters which will attempt to gracefully
+rollback a transaction on a failed migration, if a migration fails for MySQL, it may leave your DB in a partially
+migrated state.</p>
+</section>
+<section id="id2">
+<h3>SQLite<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<p>Declaring an SQLite database uses a simplified structure:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">environments</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">development</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">adapter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sqlite</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./data/derby</span>
+<span class="w">        </span><span class="nt">suffix</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;.db&quot;</span><span class="w">    </span><span class="c1"># Defaults to &quot;.sqlite3&quot;</span>
+<span class="w">    </span><span class="nt">testing</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">adapter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sqlite</span>
+<span class="w">        </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">     </span><span class="c1"># Setting memory to *any* value overrides name</span>
+</pre></div>
+</div>
+<p>Starting with PHP 8.1 the SQlite adapter supports <code class="docutils literal notranslate"><span class="pre">cache</span></code> and <code class="docutils literal notranslate"><span class="pre">mode</span></code>
+query parameters by using the <a class="reference external" href="https://www.sqlite.org/uri.html">URI scheme</a> as long as <code class="docutils literal notranslate"><span class="pre">open_basedir</span></code> is unset.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">environments</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">testing</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">adapter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sqlite</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my_app</span>
+<span class="w">        </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">memory</span><span class="w">     </span><span class="c1"># Determines if the new database is opened read-only, read-write, read-write and created if it does not exist, or that the database is a pure in-memory database that never interacts with disk, respectively.</span>
+<span class="w">        </span><span class="nt">cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shared</span><span class="w">    </span><span class="c1"># Determines if the new database is opened using shared cache mode or with a private cache.</span>
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h3>SQL Server<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<p>When using the <code class="docutils literal notranslate"><span class="pre">sqlsrv</span></code> adapter and connecting to a named instance you should
+omit the <code class="docutils literal notranslate"><span class="pre">port</span></code> setting as SQL Server will negotiate the port automatically.
+Additionally, omit the <code class="docutils literal notranslate"><span class="pre">charset:</span> <span class="pre">utf8</span></code> or change to <code class="docutils literal notranslate"><span class="pre">charset:</span> <span class="pre">65001</span></code> which
+corresponds to UTF8 for SQL Server.</p>
+</section>
+<section id="custom-adapters">
+<h3>Custom Adapters<a class="headerlink" href="#custom-adapters" title="Link to this heading">¶</a></h3>
+<p>You can provide a custom adapter by registering an implementation of the <cite>Phinx\Db\Adapter\AdapterInterface</cite>
+with <cite>AdapterFactory</cite>:</p>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="x">$name  = &#39;fizz&#39;;</span>
+<span class="x">$class = &#39;Acme\Adapter\FizzAdapter&#39;;</span>
+
+<span class="x">AdapterFactory::instance()-&gt;registerAdapter($name, $class);</span>
+</pre></div>
+</div>
+<p>Adapters can be registered any time before <cite>$app-&gt;run()</cite> is called, which normally
+called by <cite>bin/phinx</cite>.</p>
+</section>
+</section>
+<section id="templates">
+<h2>Templates<a class="headerlink" href="#templates" title="Link to this heading">¶</a></h2>
+<p>You may override how phinx generates the template used with in a handful of ways:</p>
+<ul class="simple">
+<li><p>file - path to an alternative file to use.</p></li>
+<li><p>class - class to use for the template, must implement the <code class="docutils literal notranslate"><span class="pre">Phinx\Migration\CreationInterface</span></code> interface.</p></li>
+<li><p>style - style to use for template, either <code class="docutils literal notranslate"><span class="pre">change</span></code> or <code class="docutils literal notranslate"><span class="pre">up_down</span></code>, defaults to <code class="docutils literal notranslate"><span class="pre">change</span></code> if not set.</p></li>
+</ul>
+<p>You should only use one of these options. These can be overridden by passing command line options to the
+<span class="xref std std-doc">Create Command &lt;commands</span>. Example usage within the config file is:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">templates</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">style</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">up_down</span>
+</pre></div>
+</div>
+</section>
+<section id="aliases">
+<h2>Aliases<a class="headerlink" href="#aliases" title="Link to this heading">¶</a></h2>
+<p>Template creation class names can be aliased and used with the <code class="docutils literal notranslate"><span class="pre">--class</span></code> command line option for the <a class="reference internal" href="commands.html"><span class="doc">Create Command</span></a>.</p>
+<p>The aliased classes will still be required to implement the <code class="docutils literal notranslate"><span class="pre">Phinx\Migration\CreationInterface</span></code> interface.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">aliases</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">permission</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">\Namespace\Migrations\PermissionMigrationTemplateGenerator</span>
+<span class="w">    </span><span class="nt">view</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">\Namespace\Migrations\ViewMigrationTemplateGenerator</span>
+</pre></div>
+</div>
+</section>
+<section id="version-order">
+<h2>Version Order<a class="headerlink" href="#version-order" title="Link to this heading">¶</a></h2>
+<p>When rolling back or printing the status of migrations, Phinx orders the executed migrations according to the
+<code class="docutils literal notranslate"><span class="pre">version_order</span></code> option, which can have the following values:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">creation</span></code> (the default): migrations are ordered by their creation time, which is also part of their filename.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">execution</span></code>: migrations are ordered by their execution time, also known as start time.</p></li>
+</ul>
+</section>
+<section id="bootstrap-path">
+<h2>Bootstrap Path<a class="headerlink" href="#bootstrap-path" title="Link to this heading">¶</a></h2>
+<p>You can provide a path to a <cite>bootstrap</cite> php file that will be included before any phinx commands are run. Note that
+setting External Variables to modify the config will not work because the config has already been parsed by this point.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">bootstrap</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;phinx-bootstrap.php&#39;</span>
+</pre></div>
+</div>
+<p>Within the bootstrap script, the following variables will be available:</p>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="x">/**</span>
+<span class="x"> * @var string $filename The file name as provided by the configuration</span>
+<span class="x"> * @var string $filePath The absolute, real path to the file</span>
+<span class="x"> * @var \Symfony\Component\Console\Input\InputInterface $input The executing command&#39;s input object</span>
+<span class="x"> * @var \Symfony\Component\Console\Output\OutputInterface $output The executing command&#39;s output object</span>
+<span class="x"> * @var \Phinx\Console\Command\AbstractCommand $context the executing command object</span>
+<span class="x"> */</span>
+</pre></div>
+</div>
+</section>
+<section id="feature-flags">
+<h2>Feature Flags<a class="headerlink" href="#feature-flags" title="Link to this heading">¶</a></h2>
+<p>For some breaking changes, Phinx offers a way to opt-out of new behavior. The following flags are available:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">unsigned_primary_keys</span></code>: Should Phinx create primary keys as unsigned integers? (default: <code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">column_null_default</span></code>: Should Phinx create columns as null by default? (default: <code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></li>
+</ul>
+<p>Since MySQL <code class="docutils literal notranslate"><span class="pre">TIMESTAMP</span></code> fields do not support dates past 2038-01-19, you have the option to use <code class="docutils literal notranslate"><span class="pre">DATETIME</span></code> field
+types for fields created by the <code class="docutils literal notranslate"><span class="pre">addTimestamps()</span></code> function. This setting also affects the start_time and end_time
+columns in the schema table:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">add_timestamps_use_datetime</span></code>: Should Phinx create created_at and updated_at fields as datetime? (default: <code class="docutils literal notranslate"><span class="pre">false</span></code>)</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">feature_flags</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">unsigned_primary_keys</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+<p>These values can also be set by modifying class fields on the <code class="docutils literal notranslate"><span class="pre">`Phinx\Config\FeatureFlags`</span></code> class, converting
+the flag name to <code class="docutils literal notranslate"><span class="pre">camelCase</span></code>, for example:</p>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="x">Phinx\Config\FeatureFlags::$unsignedPrimaryKeys = false;</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="copyright.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Copyright</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="commands.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Commands</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                <a href="copyright.html">Copyright</a> &#169; 2012, Rob Morgan
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Configuration</a><ul>
+<li><a class="reference internal" href="#migration-paths">Migration Paths</a></li>
+<li><a class="reference internal" href="#custom-migration-base">Custom Migration Base</a></li>
+<li><a class="reference internal" href="#seed-paths">Seed Paths</a></li>
+<li><a class="reference internal" href="#custom-seeder-base">Custom Seeder Base</a></li>
+<li><a class="reference internal" href="#custom-migration-template">Custom Migration Template</a></li>
+<li><a class="reference internal" href="#custom-seeder-template">Custom Seeder Template</a></li>
+<li><a class="reference internal" href="#environments">Environments</a></li>
+<li><a class="reference internal" href="#migration-table">Migration Table</a></li>
+<li><a class="reference internal" href="#table-prefix-and-suffix">Table Prefix and Suffix</a></li>
+<li><a class="reference internal" href="#socket-connections">Socket Connections</a></li>
+<li><a class="reference internal" href="#external-variables">External Variables</a></li>
+<li><a class="reference internal" href="#data-source-names">Data Source Names</a></li>
+<li><a class="reference internal" href="#supported-adapters">Supported Adapters</a><ul>
+<li><a class="reference internal" href="#id1">MySQL</a></li>
+<li><a class="reference internal" href="#id2">SQLite</a></li>
+<li><a class="reference internal" href="#id3">SQL Server</a></li>
+<li><a class="reference internal" href="#custom-adapters">Custom Adapters</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#templates">Templates</a></li>
+<li><a class="reference internal" href="#aliases">Aliases</a></li>
+<li><a class="reference internal" href="#version-order">Version Order</a></li>
+<li><a class="reference internal" href="#bootstrap-path">Bootstrap Path</a></li>
+<li><a class="reference internal" href="#feature-flags">Feature Flags</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=c3e5879a"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>
