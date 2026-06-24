@@ -21,13 +21,15 @@ version = '0.16'
 
 extensions = []
 
-# contents.rst holds the root toctree (index.rst is marked :orphan:).
-root_doc = 'contents'
+# index.rst is the landing page and the root document, so the "Phinx
+# Documentation" brand link in the sidebar points at index.html. (contents.rst
+# is the root toctree used by the CakePHP build and is excluded here.)
+root_doc = 'index'
 
 source_suffix = '.rst'
 language = 'en'
 
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'contents.rst']
 
 # -- HTML output -------------------------------------------------------------
 
