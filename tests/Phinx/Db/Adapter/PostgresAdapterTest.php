@@ -3469,4 +3469,141 @@ OUTPUT;
 
         $table->addColumn('role', 'enum', [])->save();
     }
+
+    public function testRenameTableRenamesEnumType()
+    {
+        $table = new Table('table1', ['id' => false], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => ['active', 'inactive'], 'null' => false])->save();
+
+        $oldTypeName = 'table1_status';
+        $newTypeName = 'table2_status';
+
+        $this->assertTrue(
+            (bool)$this->adapter->fetchRow(
+                sprintf(
+                    "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                    $oldTypeName,
+                ),
+            )['type_exists'],
+            'Enum type should exist before rename',
+        );
+
+        $this->adapter->renameTable('table1', 'table2');
+
+        // Old convention name should no longer exist; new one should.
+        $this->assertFalse(
+            (bool)$this->adapter->fetchRow(
+                sprintf(
+                    "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                    $oldTypeName,
+                ),
+            )['type_exists'],
+            'Old enum type should be renamed away',
+        );
+        $this->assertTrue(
+            (bool)$this->adapter->fetchRow(
+                sprintf(
+                    "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                    $newTypeName,
+                ),
+            )['type_exists'],
+            'Enum type should follow the new table name',
+        );
+
+        // The column should still round-trip as an enum with the same values.
+        $columns = $this->adapter->getColumns('table2');
+        $statusColumn = null;
+        foreach ($columns as $column) {
+            if ($column->getName() === 'status') {
+                $statusColumn = $column;
+                break;
+            }
+        }
+        $this->assertNotNull($statusColumn);
+        $this->assertEquals('enum', $statusColumn->getType());
+        $this->assertEquals(['active', 'inactive'], $statusColumn->getValues());
+    }
+
+    public function testRenameColumnRenamesEnumType()
+    {
+        $table = new Table('table1', ['id' => false], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => ['active', 'inactive'], 'null' => false])->save();
+
+        $oldTypeName = 'table1_status';
+        $newTypeName = 'table1_state';
+
+        $this->assertTrue(
+            (bool)$this->adapter->fetchRow(
+                sprintf(
+                    "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                    $oldTypeName,
+                ),
+            )['type_exists'],
+            'Enum type should exist before rename',
+        );
+
+        $this->adapter->renameColumn('table1', 'status', 'state');
+
+        $this->assertFalse(
+            (bool)$this->adapter->fetchRow(
+                sprintf(
+                    "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                    $oldTypeName,
+                ),
+            )['type_exists'],
+            'Old enum type should be renamed away',
+        );
+        $this->assertTrue(
+            (bool)$this->adapter->fetchRow(
+                sprintf(
+                    "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                    $newTypeName,
+                ),
+            )['type_exists'],
+            'Enum type should follow the new column name',
+        );
+    }
+
+    public function testDropColumnDropsEnumTypeAfterTableRename()
+    {
+        $table = new Table('table1', ['id' => false], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => ['active', 'inactive'], 'null' => false])->save();
+
+        $this->adapter->renameTable('table1', 'table2');
+
+        // After the rename the type follows the new convention, so dropping the
+        // column must still clean it up.
+        $table2 = new Table('table2', [], $this->adapter);
+        $table2->removeColumn('status')->save();
+
+        $this->assertFalse(
+            (bool)$this->adapter->fetchRow(
+                sprintf(
+                    "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                    'table2_status',
+                ),
+            )['type_exists'],
+            'Enum type should be dropped with the column after a table rename',
+        );
+    }
+
+    public function testDropTableDropsEnumTypesAfterTableRename()
+    {
+        $table = new Table('table1', ['id' => false], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => ['active', 'inactive'], 'null' => false])->save();
+
+        $this->adapter->renameTable('table1', 'table2');
+
+        $this->adapter->dropTable('table2');
+
+        $this->assertFalse(
+            (bool)$this->adapter->fetchRow(
+                sprintf(
+                    "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                    'table2_status',
+                ),
+            )['type_exists'],
+            'Enum type should be dropped with the table after a table rename',
+        );
+    }
 }

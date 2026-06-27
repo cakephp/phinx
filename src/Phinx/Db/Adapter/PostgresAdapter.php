@@ -433,8 +433,33 @@ class PostgresAdapter extends PdoAdapter
             $this->quoteTableName($tableName),
             $this->quoteColumnName($newTableName),
         );
+        $instructions = new AlterInstructions([], [$sql]);
 
-        return new AlterInstructions([], [$sql]);
+        // Keep the {table}_{column} enum type naming convention invariant
+        // across table renames so dropColumn/dropTable can still locate the
+        // type. Only types whose current name matches the old convention are
+        // renamed; custom-named types are left untouched.
+        $parts = $this->getSchemaName($tableName);
+        foreach ($this->getColumns($tableName) as $column) {
+            if ($column->getType() !== static::PHINX_TYPE_ENUM) {
+                continue;
+            }
+            $oldTypeName = $this->getEnumTypeName($tableName, $column->getName());
+            if (!$this->hasEnumType($oldTypeName, $parts['schema'])) {
+                continue;
+            }
+            $newTypeName = $this->getEnumTypeName($newTableName, $column->getName());
+            if ($oldTypeName === $newTypeName) {
+                continue;
+            }
+            $instructions->addPostStep(sprintf(
+                'ALTER TYPE %s RENAME TO %s',
+                $this->quoteColumnName($oldTypeName),
+                $this->quoteColumnName($newTypeName),
+            ));
+        }
+
+        return $instructions;
     }
 
     /**
@@ -657,6 +682,21 @@ class PostgresAdapter extends PdoAdapter
                 $this->quoteColumnName($newColumnName),
             ),
         );
+
+        // Keep the {table}_{column} enum type naming convention invariant
+        // across column renames so dropColumn/dropTable can still locate the
+        // type. Custom-named types are left untouched.
+        $oldTypeName = $this->getEnumTypeName($tableName, $columnName);
+        if ($this->hasEnumType($oldTypeName, $parts['schema'])) {
+            $newTypeName = $this->getEnumTypeName($tableName, $newColumnName);
+            if ($oldTypeName !== $newTypeName) {
+                $instructions->addPostStep(sprintf(
+                    'ALTER TYPE %s RENAME TO %s',
+                    $this->quoteColumnName($oldTypeName),
+                    $this->quoteColumnName($newTypeName),
+                ));
+            }
+        }
 
         return $instructions;
     }
