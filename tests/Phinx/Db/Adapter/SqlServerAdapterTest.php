@@ -1184,6 +1184,11 @@ WHERE t.name='ntable'");
         $this->assertTrue($this->adapter->hasDatabase(SQLSRV_DB_CONFIG['name']));
     }
 
+    public function testHasDatabaseWithSingleQuoteInName()
+    {
+        $this->assertFalse($this->adapter->hasDatabase("fake'database'name"));
+    }
+
     public function testDropDatabase()
     {
         $this->assertFalse($this->adapter->hasDatabase('phinx_temp_database'));
