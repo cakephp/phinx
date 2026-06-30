@@ -1206,7 +1206,7 @@ class PostgresAdapter extends PdoAdapter
      */
     public function hasDatabase(string $name): bool
     {
-        $sql = sprintf("SELECT count(*) FROM pg_database WHERE datname = %s", $this->getConnection()->quote($name));
+        $sql = sprintf('SELECT count(*) FROM pg_database WHERE datname = %s', $this->getConnection()->quote($name));
         $result = $this->fetchRow($sql);
 
         return $result['count'] > 0;
