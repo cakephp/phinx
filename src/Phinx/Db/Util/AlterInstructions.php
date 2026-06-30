@@ -17,6 +17,11 @@ use InvalidArgumentException;
 class AlterInstructions
 {
     /**
+     * @var (string|callable)[] The SQL commands to be executed before the ALTER instruction
+     */
+    protected array $preSteps = [];
+
+    /**
      * @var string[] The SQL snippets to be added to an ALTER instruction
      */
     protected array $alterParts = [];
@@ -46,6 +51,27 @@ class AlterInstructions
     {
         $this->alterParts = $alterParts;
         $this->postSteps = $postSteps;
+    }
+
+    /**
+     * Adds a SQL command to be executed before the ALTER instruction.
+     *
+     * @param string|callable $sql The SQL to run before, or a callable to execute
+     * @return void
+     */
+    public function addPreStep(string|callable $sql): void
+    {
+        $this->preSteps[] = $sql;
+    }
+
+    /**
+     * Returns the SQL commands to run before the ALTER instruction
+     *
+     * @return (string|callable)[]
+     */
+    public function getPreSteps(): array
+    {
+        return $this->preSteps;
     }
 
     /**
@@ -146,6 +172,7 @@ class AlterInstructions
      */
     public function merge(AlterInstructions $other): void
     {
+        $this->preSteps = array_merge($this->preSteps, $other->getPreSteps());
         $this->alterParts = array_merge($this->alterParts, $other->getAlterParts());
         $this->postSteps = array_merge($this->postSteps, $other->getPostSteps());
 
@@ -182,6 +209,15 @@ class AlterInstructions
      */
     public function execute(string $alterTemplate, callable $executor): void
     {
+        foreach ($this->preSteps as $instruction) {
+            if (is_callable($instruction)) {
+                $instruction();
+                continue;
+            }
+
+            $executor($instruction);
+        }
+
         if ($this->alterParts) {
             $alter = sprintf($alterTemplate, implode(', ', $this->alterParts));
             $executor($alter);

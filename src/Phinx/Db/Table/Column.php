@@ -40,13 +40,13 @@ class Column
     /** MySQL-only column type */
     public const MEDIUMINTEGER = AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER;
     /** MySQL-only column type */
-    public const ENUM = AdapterInterface::PHINX_TYPE_ENUM;
-    /** MySQL-only column type */
     public const SET = AdapterInterface::PHINX_TYPE_STRING;
     /** MySQL-only column type */
     public const BLOB = AdapterInterface::PHINX_TYPE_BLOB;
     /** MySQL-only column type */
     public const YEAR = AdapterInterface::PHINX_TYPE_YEAR;
+    /** MySQL/Postgres-only column type */
+    public const ENUM = AdapterInterface::PHINX_TYPE_ENUM;
     /** MySQL/Postgres-only column type */
     public const JSON = AdapterInterface::PHINX_TYPE_JSON;
     /** Postgres-only column type */

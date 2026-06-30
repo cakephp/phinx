@@ -70,11 +70,13 @@ interface AdapterInterface
         self::PHINX_TYPE_POLYGON,
     ];
 
-    // only for mysql so far
+    // MySQL-specific types
     public const PHINX_TYPE_MEDIUM_INTEGER = 'mediuminteger';
-    public const PHINX_TYPE_ENUM = 'enum';
     public const PHINX_TYPE_SET = 'set';
     public const PHINX_TYPE_YEAR = 'year';
+
+    // Supported by MySQL and PostgreSQL
+    public const PHINX_TYPE_ENUM = 'enum';
 
     // only for postgresql so far
     public const PHINX_TYPE_CIDR = 'cidr';
