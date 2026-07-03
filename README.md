@@ -103,7 +103,7 @@ You can also use the Box application to build Phinx as a Phar archive (https://b
 
 ## Documentation
 
-Check out https://book.cakephp.org/phinx for the comprehensive documentation.
+Check out https://phinx.org/docs for the comprehensive documentation.
 
 Other translations include:
 
