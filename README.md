@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/cakephp/phinx/actions/workflows/ci.yml/badge.svg?branch=0.x&event=push)](https://github.com/cakephp/phinx/actions/workflows/ci.yml)
 [![Code Coverage](https://codecov.io/gh/cakephp/phinx/branch/master/graph/badge.svg)](https://codecov.io/gh/cakephp/phinx)
-![Packagist Version](https://img.shields.io/packagist/v/robmorgan/phinx)
+[![Packagist Version](https://img.shields.io/packagist/v/robmorgan/phinx)](https://packagist.org/packages/robmorgan/phinx)
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%208.1-8892BF.svg)](https://php.net/)
 ![Packagist Downloads](https://img.shields.io/packagist/dt/robmorgan/phinx)
 

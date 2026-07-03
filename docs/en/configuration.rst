@@ -501,7 +501,7 @@ You may override how phinx generates the template used with in a handful of ways
 * style - style to use for template, either ``change`` or ``up_down``, defaults to ``change`` if not set.
 
 You should only use one of these options. These can be overridden by passing command line options to the
-:doc:`Create Command <commands`. Example usage within the config file is:
+:doc:`Create Command <commands>`. Example usage within the config file is:
 
 .. code-block:: yaml
 
@@ -562,7 +562,8 @@ For some breaking changes, Phinx offers a way to opt-out of new behavior. The fo
 * ``column_null_default``: Should Phinx create columns as null by default? (default: ``true``)
 
 Since MySQL ``TIMESTAMP`` fields do not support dates past 2038-01-19, you have the option to use ``DATETIME`` field
-types for fields created by the ``addTimestamps()`` function:
+types for fields created by the ``addTimestamps()`` function. This setting also affects the start_time and end_time 
+columns in the schema table:
 
 * ``add_timestamps_use_datetime``: Should Phinx create created_at and updated_at fields as datetime? (default: ``false``)
 

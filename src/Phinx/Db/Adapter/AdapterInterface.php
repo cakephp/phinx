@@ -53,6 +53,7 @@ interface AdapterInterface
     public const PHINX_TYPE_JSON = 'json';
     public const PHINX_TYPE_JSONB = 'jsonb';
     public const PHINX_TYPE_UUID = 'uuid';
+    public const PHINX_TYPE_NATIVEUUID = 'nativeuuid';
     public const PHINX_TYPE_FILESTREAM = 'filestream';
 
     // Geospatial database types
@@ -69,11 +70,13 @@ interface AdapterInterface
         self::PHINX_TYPE_POLYGON,
     ];
 
-    // only for mysql so far
+    // MySQL-specific types
     public const PHINX_TYPE_MEDIUM_INTEGER = 'mediuminteger';
-    public const PHINX_TYPE_ENUM = 'enum';
     public const PHINX_TYPE_SET = 'set';
     public const PHINX_TYPE_YEAR = 'year';
+
+    // Supported by MySQL and PostgreSQL
+    public const PHINX_TYPE_ENUM = 'enum';
 
     // only for postgresql so far
     public const PHINX_TYPE_CIDR = 'cidr';

@@ -1868,7 +1868,7 @@ PCRE_PATTERN;
                 $def .= '(' . ($column->getLimit() ?: $sqlType['limit']) . ')';
             }
         }
-        if ($column->getPrecision() && $column->getScale()) {
+        if ($column->getPrecision() && $column->getScale() !== null) {
             $def .= '(' . $column->getPrecision() . ',' . $column->getScale() . ')';
         }
 

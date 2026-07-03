@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -22,7 +22,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
@@ -40,7 +40,7 @@ jobs:
         run: ~/.composer/vendor/bin/box compile
 
       - name: Upload Release Asset
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           script: |

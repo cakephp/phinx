@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.1', '8.4']
+        php-version: ['8.1', '8.5']
         db-type: [sqlite, mysql, pgsql]
         prefer-lowest: ['']
         include:
@@ -27,7 +27,7 @@ jobs:
 
     steps:
     - name: Setup MySQL latest
-      if: matrix.db-type == 'mysql' && matrix.php-version == '8.4'
+      if: matrix.db-type == 'mysql' && matrix.php-version == '8.5'
       run: docker run --rm --name=mysqld -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=cakephp -p 3306:3306 -d mysql:8.4
 
     - name: Setup MySQL 8.0
@@ -46,7 +46,7 @@ jobs:
       if: matrix.db-type == 'pgsql' && matrix.php-version == '8.1'
       run: docker run --rm --name=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=cakephp -p 5432:5432 -d postgres:9.4
 
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v7
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -64,7 +64,7 @@ jobs:
       run: echo "date=$(date +'%Y-%m')" >> $GITHUB_OUTPUT
 
     - name: Cache composer dependencies
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ steps.key-date.outputs.date }}-${{ hashFiles('composer.json') }}-${{ matrix.prefer-lowest }}
@@ -113,7 +113,7 @@ jobs:
 
     - name: Submit code coverage
       if: ${{ matrix.prefer-lowest != 'prefer-lowest' }}
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -126,7 +126,7 @@ jobs:
       PHP_VERSION: '8.1'
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v7
 
     - name: Get date part for cache key
       id: key-date
@@ -141,7 +141,7 @@ jobs:
         key: ${{ steps.key-date.outputs.date }}
 
     - name: Cache PHP extensions
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ${{ steps.php-ext-cache.outputs.dir }}
         key: ${{ runner.os }}-php-ext-${{ steps.php-ext-cache.outputs.key }}
@@ -167,7 +167,7 @@ jobs:
       run: echo "dir=$(composer config cache-files-dir)" >> $env:GITHUB_OUTPUT
 
     - name: Cache composer dependencies
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ steps.key-date.outputs.date }}-${{ hashFiles('composer.json') }}-${{ matrix.prefer-lowest }}
@@ -183,7 +183,7 @@ jobs:
           vendor/bin/phpunit --coverage-clover=coverage.xml
 
     - name: Submit code coverage
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -192,7 +192,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v7
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -209,7 +209,7 @@ jobs:
       run: echo "date=$(date +'%Y-%m')" >> $GITHUB_OUTPUT
 
     - name: Cache composer dependencies
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ steps.key-date.outputs.date }}-${{ hashFiles('composer.json') }}

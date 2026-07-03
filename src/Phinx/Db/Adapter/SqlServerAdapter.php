@@ -476,10 +476,15 @@ class SqlServerAdapter extends PdoAdapter
                    ->setNull($columnInfo['null'] !== 'NO')
                    ->setDefault($this->parseDefault($columnInfo['default']))
                    ->setIdentity($columnInfo['identity'] === '1')
+                   ->setScale($columnInfo['scale'] ? (int)$columnInfo['scale'] : null)
                    ->setComment($this->getColumnComment($columnInfo['table_name'], $columnInfo['name']));
 
             if (!empty($columnInfo['char_length'])) {
                 $column->setLimit((int)$columnInfo['char_length']);
+            }
+
+            if ($type === self::PHINX_TYPE_DECIMAL) {
+                $column->setPrecision((int)$columnInfo['precision']);
             }
 
             $columns[$columnInfo['name']] = $column;
@@ -598,7 +603,7 @@ SQL;
         if ($default === null) {
             $default = 'DEFAULT NULL';
         } else {
-            $default = ltrim($this->getDefaultValueDefinition($default));
+            $default = ltrim($this->getDefaultValueDefinition($default, $newColumn->getType()));
         }
 
         if (empty($default)) {
@@ -1063,8 +1068,9 @@ ORDER BY T.[name], I.[index_id];";
     {
         $type = (string)$type;
         switch ($type) {
-            case static::PHINX_TYPE_FLOAT:
             case static::PHINX_TYPE_DECIMAL:
+                return ['name' => $type, 'precision' => 18, 'scale' => 0];
+            case static::PHINX_TYPE_FLOAT:
             case static::PHINX_TYPE_DATETIME:
             case static::PHINX_TYPE_TIME:
             case static::PHINX_TYPE_DATE:
@@ -1092,6 +1098,7 @@ ORDER BY T.[name], I.[index_id];";
                 return ['name' => 'bit'];
             case static::PHINX_TYPE_BINARYUUID:
             case static::PHINX_TYPE_UUID:
+            case static::PHINX_TYPE_NATIVEUUID:
                 return ['name' => 'uniqueidentifier'];
             case static::PHINX_TYPE_FILESTREAM:
                 return ['name' => 'varbinary', 'limit' => 'max'];
@@ -1191,8 +1198,8 @@ ORDER BY T.[name], I.[index_id];";
         /** @var array<string, mixed> $result */
         $result = $this->fetchRow(
             sprintf(
-                "SELECT count(*) as [count] FROM master.dbo.sysdatabases WHERE [name] = '%s'",
-                $name,
+                'SELECT count(*) as [count] FROM master.dbo.sysdatabases WHERE [name] = %s',
+                $this->getConnection()->quote($name),
             ),
         );
 
@@ -1237,7 +1244,7 @@ ORDER BY T.[name], I.[index_id];";
                 'tinyint',
                 'smallint',
             ];
-            if ($sqlType['name'] === static::PHINX_TYPE_DECIMAL && $column->getPrecision() && $column->getScale()) {
+            if ($sqlType['name'] === static::PHINX_TYPE_DECIMAL && ($column->getPrecision() || $column->getScale())) {
                 $buffer[] = sprintf(
                     '(%s, %s)',
                     $column->getPrecision() ?: $sqlType['precision'],
@@ -1258,7 +1265,7 @@ ORDER BY T.[name], I.[index_id];";
             if ($column->getDefault() === null && $column->isNull()) {
                 $buffer[] = ' DEFAULT NULL';
             } else {
-                $buffer[] = $this->getDefaultValueDefinition($column->getDefault());
+                $buffer[] = $this->getDefaultValueDefinition($column->getDefault(), $column->getType());
             }
         }
 

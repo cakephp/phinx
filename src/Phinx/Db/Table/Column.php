@@ -36,16 +36,17 @@ class Column
     public const TIMESTAMP = AdapterInterface::PHINX_TYPE_TIMESTAMP;
     public const UUID = AdapterInterface::PHINX_TYPE_UUID;
     public const BINARYUUID = AdapterInterface::PHINX_TYPE_BINARYUUID;
+    public const NATIVEUUID = AdapterInterface::PHINX_TYPE_NATIVEUUID;
     /** MySQL-only column type */
     public const MEDIUMINTEGER = AdapterInterface::PHINX_TYPE_MEDIUM_INTEGER;
-    /** MySQL-only column type */
-    public const ENUM = AdapterInterface::PHINX_TYPE_ENUM;
     /** MySQL-only column type */
     public const SET = AdapterInterface::PHINX_TYPE_STRING;
     /** MySQL-only column type */
     public const BLOB = AdapterInterface::PHINX_TYPE_BLOB;
     /** MySQL-only column type */
     public const YEAR = AdapterInterface::PHINX_TYPE_YEAR;
+    /** MySQL/Postgres-only column type */
+    public const ENUM = AdapterInterface::PHINX_TYPE_ENUM;
     /** MySQL/Postgres-only column type */
     public const JSON = AdapterInterface::PHINX_TYPE_JSON;
     /** Postgres-only column type */
@@ -160,6 +161,16 @@ class Column
      * @var array|null
      */
     protected ?array $values = null;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $algorithm = null;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $lock = null;
 
     /**
      * Column constructor
@@ -708,6 +719,52 @@ class Column
     }
 
     /**
+     * Sets the ALTER TABLE algorithm (MySQL-specific).
+     *
+     * @param string $algorithm Algorithm
+     * @return $this
+     */
+    public function setAlgorithm(string $algorithm)
+    {
+        $this->algorithm = $algorithm;
+
+        return $this;
+    }
+
+    /**
+     * Gets the ALTER TABLE algorithm.
+     *
+     * @return string|null
+     */
+    public function getAlgorithm(): ?string
+    {
+        return $this->algorithm;
+    }
+
+    /**
+     * Sets the ALTER TABLE lock mode (MySQL-specific).
+     *
+     * @param string $lock Lock mode
+     * @return $this
+     */
+    public function setLock(string $lock)
+    {
+        $this->lock = $lock;
+
+        return $this;
+    }
+
+    /**
+     * Gets the ALTER TABLE lock mode.
+     *
+     * @return string|null
+     */
+    public function getLock(): ?string
+    {
+        return $this->lock;
+    }
+
+    /**
      * Sets the column SRID.
      *
      * @param int $srid SRID
@@ -756,6 +813,8 @@ class Column
             'seed',
             'increment',
             'generated',
+            'algorithm',
+            'lock',
         ];
     }
 
