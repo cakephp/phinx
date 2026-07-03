@@ -1463,7 +1463,7 @@ class MysqlAdapter extends PdoAdapter
         }
 
         $values = $column->getValues();
-        if ($values && is_array($values)) {
+        if ($values) {
             $def .= '(' . implode(', ', array_map(function ($value) {
                 // we special case NULL as it's not actually allowed an enum value,
                 // and we want MySQL to issue an error on the create statement, but
