@@ -2030,6 +2030,11 @@ class MysqlAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasDatabase(MYSQL_DB_CONFIG['name']));
     }
 
+    public function testHasDatabaseWithSingleQuoteInName()
+    {
+        $this->assertFalse($this->adapter->hasDatabase("fake'database'name"));
+    }
+
     public function testDropDatabase()
     {
         $this->assertFalse($this->adapter->hasDatabase('phinx_temp_database'));

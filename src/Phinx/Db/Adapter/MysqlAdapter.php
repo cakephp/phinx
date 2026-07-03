@@ -1419,8 +1419,8 @@ class MysqlAdapter extends PdoAdapter
     {
         $rows = $this->fetchAll(
             sprintf(
-                'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = \'%s\'',
-                $name,
+                'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = %s',
+                $this->getConnection()->quote($name),
             ),
         );
 

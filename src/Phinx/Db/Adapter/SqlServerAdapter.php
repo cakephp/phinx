@@ -1198,8 +1198,8 @@ ORDER BY T.[name], I.[index_id];";
         /** @var array<string, mixed> $result */
         $result = $this->fetchRow(
             sprintf(
-                "SELECT count(*) as [count] FROM master.dbo.sysdatabases WHERE [name] = '%s'",
-                $name,
+                'SELECT count(*) as [count] FROM master.dbo.sysdatabases WHERE [name] = %s',
+                $this->getConnection()->quote($name),
             ),
         );
 
