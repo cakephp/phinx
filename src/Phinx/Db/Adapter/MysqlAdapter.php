@@ -971,6 +971,7 @@ class MysqlAdapter extends PdoAdapter
             $tableName,
         ));
         foreach ($rows as $row) {
+            $foreignKeys[$row['CONSTRAINT_NAME']]['constraint'] = $row['CONSTRAINT_NAME'];
             $foreignKeys[$row['CONSTRAINT_NAME']]['table'] = $row['TABLE_NAME'];
             $foreignKeys[$row['CONSTRAINT_NAME']]['columns'][] = $row['COLUMN_NAME'];
             $foreignKeys[$row['CONSTRAINT_NAME']]['referenced_table'] = $row['REFERENCED_TABLE_NAME'];
@@ -999,7 +1000,7 @@ class MysqlAdapter extends PdoAdapter
     protected function getDropForeignKeyInstructions(string $tableName, string $constraint): AlterInstructions
     {
         $alter = sprintf(
-            'DROP FOREIGN KEY %s',
+            'DROP FOREIGN KEY `%s`',
             $constraint,
         );
 
@@ -1019,9 +1020,9 @@ class MysqlAdapter extends PdoAdapter
 
         $matches = [];
         $foreignKeys = $this->getForeignKeys($tableName);
-        foreach ($foreignKeys as $name => $key) {
-            if (array_map('mb_strtolower', $key['columns']) === $columns) {
-                $matches[] = $name;
+        foreach ($foreignKeys as $foreignKey) {
+            if (array_map('mb_strtolower', $foreignKey['columns']) === $columns) {
+                $matches[] = $foreignKey['constraint'];
             }
         }
 
@@ -1418,8 +1419,8 @@ class MysqlAdapter extends PdoAdapter
     {
         $rows = $this->fetchAll(
             sprintf(
-                'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = \'%s\'',
-                $name,
+                'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = %s',
+                $this->getConnection()->quote($name),
             ),
         );
 
@@ -1462,7 +1463,7 @@ class MysqlAdapter extends PdoAdapter
         }
 
         $values = $column->getValues();
-        if ($values && is_array($values)) {
+        if ($values) {
             $def .= '(' . implode(', ', array_map(function ($value) {
                 // we special case NULL as it's not actually allowed an enum value,
                 // and we want MySQL to issue an error on the create statement, but

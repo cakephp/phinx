@@ -1949,6 +1949,11 @@ class PostgresAdapterTest extends TestCase
         $this->assertTrue($this->adapter->hasDatabase(PGSQL_DB_CONFIG['name']));
     }
 
+    public function testHasDatabaseWithSingleQuoteInName()
+    {
+        $this->assertFalse($this->adapter->hasDatabase("fake'database'name"));
+    }
+
     public function testDropDatabase()
     {
         $this->assertFalse($this->adapter->hasDatabase('phinx_temp_database'));
@@ -3047,5 +3052,563 @@ OUTPUT;
     {
         $adapter = new PostgresAdapter(PGSQL_DB_CONFIG);
         $this->assertFalse($adapter->getConnection()->getAttribute(PDO::ATTR_PERSISTENT));
+    }
+
+    public function testGetSqlTypeEnum()
+    {
+        $this->assertEquals(['name' => 'enum'], $this->adapter->getSqlType('enum'));
+    }
+
+    public function testEnumIsValidColumnType()
+    {
+        $col = new Column();
+        $col->setType('enum');
+        $this->assertTrue($this->adapter->isValidColumnType($col));
+    }
+
+    public function testCreateTableWithEnumColumn()
+    {
+        $table = new Table('moods', ['id' => false], $this->adapter);
+        $table->addColumn('current_mood', 'enum', [
+            'values' => ['sad', 'ok', 'happy'],
+            'null' => false,
+        ])->save();
+
+        $this->assertTrue($this->adapter->hasTable('moods'));
+        $this->assertTrue($this->adapter->hasColumn('moods', 'current_mood'));
+
+        // The PostgreSQL type should exist
+        $result = $this->adapter->fetchRow(
+            "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'moods_current_mood' AND typtype = 'e') AS type_exists",
+        );
+        $this->assertTrue((bool)$result['type_exists'], 'Enum type moods_current_mood should exist');
+    }
+
+    public function testCreateTableWithEnumColumnRoundTrip()
+    {
+        $values = ['pending', 'active', 'archived'];
+
+        $table = new Table('orders', ['id' => false], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => $values, 'null' => false])->save();
+
+        $columns = $this->adapter->getColumns('orders');
+        $statusColumn = null;
+        foreach ($columns as $column) {
+            if ($column->getName() === 'status') {
+                $statusColumn = $column;
+                break;
+            }
+        }
+
+        $this->assertNotNull($statusColumn, 'Column status should exist');
+        $this->assertEquals('enum', $statusColumn->getType());
+        $this->assertEquals($values, $statusColumn->getValues());
+    }
+
+    public function testAddEnumColumn()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table->addColumn('mood', 'enum', [
+            'values' => ['happy', 'sad', 'neutral'],
+            'null' => true,
+        ])->save();
+
+        $this->assertTrue($this->adapter->hasColumn('table1', 'mood'));
+
+        // The type should have been created
+        $result = $this->adapter->fetchRow(
+            "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'table1_mood' AND typtype = 'e') AS type_exists",
+        );
+        $this->assertTrue((bool)$result['type_exists'], 'Enum type table1_mood should exist');
+    }
+
+    public function testAddEnumColumnRoundTrip()
+    {
+        $values = ['draft', 'published', 'deleted'];
+
+        $table = new Table('articles', [], $this->adapter);
+        $table->save();
+        $table->addColumn('state', 'enum', ['values' => $values, 'null' => false])->save();
+
+        $columns = $this->adapter->getColumns('articles');
+        $stateColumn = null;
+        foreach ($columns as $column) {
+            if ($column->getName() === 'state') {
+                $stateColumn = $column;
+                break;
+            }
+        }
+
+        $this->assertNotNull($stateColumn, 'Column state should exist');
+        $this->assertEquals('enum', $stateColumn->getType());
+        $this->assertEquals($values, $stateColumn->getValues());
+    }
+
+    public function testDropColumnDropsEnumType()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => ['on', 'off']])->save();
+
+        $this->assertTrue($this->adapter->hasColumn('table1', 'status'));
+
+        $result = $this->adapter->fetchRow(
+            "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'table1_status' AND typtype = 'e') AS type_exists",
+        );
+        $this->assertTrue((bool)$result['type_exists'], 'Enum type should exist before drop');
+
+        $table->removeColumn('status')->save();
+
+        $this->assertFalse($this->adapter->hasColumn('table1', 'status'));
+
+        $result = $this->adapter->fetchRow(
+            "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'table1_status' AND typtype = 'e') AS type_exists",
+        );
+        $this->assertFalse((bool)$result['type_exists'], 'Enum type should be dropped along with the column');
+    }
+
+    public function testDropTableDropsEnumTypes()
+    {
+        $table = new Table('notifications', ['id' => false], $this->adapter);
+        $table->addColumn('kind', 'enum', ['values' => ['email', 'sms', 'push'], 'null' => false])
+              ->addColumn('state', 'enum', ['values' => ['queued', 'sent', 'failed'], 'null' => false])
+              ->save();
+
+        $this->assertTrue($this->adapter->hasTable('notifications'));
+
+        $table->drop()->save();
+
+        $this->assertFalse($this->adapter->hasTable('notifications'));
+
+        foreach (['notifications_kind', 'notifications_state'] as $typeName) {
+            $result = $this->adapter->fetchRow(sprintf(
+                "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                $typeName,
+            ));
+            $this->assertFalse((bool)$result['type_exists'], "Enum type $typeName should be dropped with the table");
+        }
+    }
+
+    public function testTwoTablesCanHaveEnumColumnsWithSameName()
+    {
+        $table1 = new Table('users', ['id' => false], $this->adapter);
+        $table1->addColumn('status', 'enum', ['values' => ['active', 'inactive']])->save();
+
+        $table2 = new Table('orders', ['id' => false], $this->adapter);
+        $table2->addColumn('status', 'enum', ['values' => ['pending', 'shipped', 'delivered']])->save();
+
+        // Each table gets its own enum type
+        foreach (['users_status' => ['active', 'inactive'], 'orders_status' => ['pending', 'shipped', 'delivered']] as $typeName => $expectedValues) {
+            $rows = $this->adapter->fetchAll(sprintf(
+                "SELECT e.enumlabel FROM pg_type t JOIN pg_enum e ON t.oid = e.enumtypid
+                 WHERE t.typname = '%s' ORDER BY e.enumsortorder",
+                $typeName,
+            ));
+            $this->assertEquals($expectedValues, array_column($rows, 'enumlabel'), "Values for $typeName should match");
+        }
+    }
+
+    public function testCreateTableWithEnumColumnWithSchema()
+    {
+        $this->adapter->createSchema('tschema');
+
+        $table = new Table('tschema.events', ['id' => false], $this->adapter);
+        $table->addColumn('level', 'enum', ['values' => ['info', 'warning', 'error'], 'null' => false])->save();
+
+        $this->assertTrue($this->adapter->hasTable('tschema.events'));
+        $this->assertTrue($this->adapter->hasColumn('tschema.events', 'level'));
+    }
+
+    public function testCreateTableWithEnumColumnAndDefault()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('status', 'enum', [
+            'values' => ['pending', 'active', 'archived'],
+            'null' => false,
+            'default' => 'pending',
+        ])->save();
+
+        $this->assertTrue($this->adapter->hasColumn('table1', 'status'));
+
+        $columns = $this->adapter->getColumns('table1');
+        $statusColumn = null;
+        foreach ($columns as $column) {
+            if ($column->getName() === 'status') {
+                $statusColumn = $column;
+                break;
+            }
+        }
+
+        $this->assertNotNull($statusColumn, 'Column status should exist');
+        $this->assertEquals('enum', $statusColumn->getType());
+        $this->assertEquals('pending', $statusColumn->getDefault());
+        $this->assertFalse($statusColumn->isNull());
+    }
+
+    public function testNullableEnumColumnRoundTrip()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('priority', 'enum', [
+            'values' => ['low', 'medium', 'high'],
+            'null' => true,
+        ])->save();
+
+        $columns = $this->adapter->getColumns('table1');
+        $priorityColumn = null;
+        foreach ($columns as $column) {
+            if ($column->getName() === 'priority') {
+                $priorityColumn = $column;
+                break;
+            }
+        }
+
+        $this->assertNotNull($priorityColumn, 'Column priority should exist');
+        $this->assertEquals('enum', $priorityColumn->getType());
+        $this->assertEquals(['low', 'medium', 'high'], $priorityColumn->getValues());
+        $this->assertTrue($priorityColumn->isNull());
+    }
+
+    public function testDropNonEnumColumnKeepsEnumType()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => ['on', 'off']])
+              ->addColumn('name', 'string')
+              ->save();
+
+        $this->assertTrue($this->adapter->hasColumn('table1', 'status'));
+        $this->assertTrue($this->adapter->hasColumn('table1', 'name'));
+
+        // Drop the non-enum column
+        $table->removeColumn('name')->save();
+
+        $this->assertFalse($this->adapter->hasColumn('table1', 'name'));
+        $this->assertTrue($this->adapter->hasColumn('table1', 'status'));
+
+        // The enum type should still exist
+        $result = $this->adapter->fetchRow(
+            "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'table1_status' AND typtype = 'e') AS type_exists",
+        );
+        $this->assertTrue((bool)$result['type_exists'], 'Enum type should not be dropped when removing a non-enum column');
+    }
+
+    public function testDropTableWithMixedEnumAndNonEnumColumns()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => ['on', 'off']])
+              ->addColumn('name', 'string')
+              ->addColumn('age', 'integer')
+              ->save();
+
+        $table->drop()->save();
+
+        $this->assertFalse($this->adapter->hasTable('table1'));
+
+        // Enum type should be cleaned up
+        $result = $this->adapter->fetchRow(
+            "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'table1_status' AND typtype = 'e') AS type_exists",
+        );
+        $this->assertFalse((bool)$result['type_exists'], 'Enum type should be dropped with the table');
+
+        // Non-enum columns should not leave orphaned types
+        $result = $this->adapter->fetchRow(
+            "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'table1_name' AND typtype = 'e') AS type_exists",
+        );
+        $this->assertFalse((bool)$result['type_exists'], 'No orphan type for non-enum column');
+    }
+
+    public function testGetColumnsWithEnumAndLiteralUserDefinedType()
+    {
+        // Create a table with both an enum column and a citext (USER-DEFINED, non-enum) column
+        $table = new Table('table1', ['id' => false], $this->adapter);
+        $table->addColumn('mood', 'enum', ['values' => ['happy', 'sad']])
+              ->addColumn('label', Literal::from('citext'))
+              ->save();
+
+        $columns = $this->adapter->getColumns('table1');
+        $this->assertCount(2, $columns);
+
+        $moodColumn = null;
+        $labelColumn = null;
+        foreach ($columns as $column) {
+            if ($column->getName() === 'mood') {
+                $moodColumn = $column;
+            }
+            if ($column->getName() === 'label') {
+                $labelColumn = $column;
+            }
+        }
+
+        // Enum column should come back as PHINX_TYPE_ENUM with values
+        $this->assertNotNull($moodColumn);
+        $this->assertEquals('enum', $moodColumn->getType());
+        $this->assertEquals(['happy', 'sad'], $moodColumn->getValues());
+
+        // citext column should remain a Literal (USER-DEFINED non-enum)
+        $this->assertNotNull($labelColumn);
+        $this->assertInstanceOf(Literal::class, $labelColumn->getType());
+        $this->assertEquals('citext', (string)$labelColumn->getType());
+    }
+
+    public function testAddEnumColumnWithDefaultValue()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table->addColumn('role', 'enum', [
+            'values' => ['admin', 'editor', 'viewer'],
+            'null' => false,
+            'default' => 'viewer',
+        ])->save();
+
+        $this->assertTrue($this->adapter->hasColumn('table1', 'role'));
+
+        $columns = $this->adapter->getColumns('table1');
+        $roleColumn = null;
+        foreach ($columns as $column) {
+            if ($column->getName() === 'role') {
+                $roleColumn = $column;
+                break;
+            }
+        }
+
+        $this->assertNotNull($roleColumn, 'Column role should exist');
+        $this->assertEquals('enum', $roleColumn->getType());
+        $this->assertEquals(['admin', 'editor', 'viewer'], $roleColumn->getValues());
+        $this->assertEquals('viewer', $roleColumn->getDefault());
+        $this->assertFalse($roleColumn->isNull());
+    }
+
+    public function testChangeColumnPreservesEnumOnOtherColumns()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => ['active', 'inactive']])
+              ->addColumn('name', 'string', ['limit' => 50])
+              ->save();
+
+        // Change the non-enum column
+        $newColumn = new Column();
+        $newColumn->setName('name')
+                  ->setType('string')
+                  ->setLimit(100);
+
+        $table->changeColumn('name', $newColumn)->save();
+
+        // Verify the enum column is intact
+        $columns = $this->adapter->getColumns('table1');
+        $statusColumn = null;
+        $nameColumn = null;
+        foreach ($columns as $column) {
+            if ($column->getName() === 'status') {
+                $statusColumn = $column;
+            }
+            if ($column->getName() === 'name') {
+                $nameColumn = $column;
+            }
+        }
+
+        $this->assertNotNull($statusColumn, 'Column status should exist');
+        $this->assertEquals('enum', $statusColumn->getType());
+        $this->assertEquals(['active', 'inactive'], $statusColumn->getValues());
+
+        $this->assertNotNull($nameColumn, 'Column name should exist');
+        $this->assertEquals('100', $nameColumn->getLimit());
+    }
+
+    public function testEnumValuesOrderIsPreserved()
+    {
+        $values = ['zebra', 'apple', 'mango', 'banana'];
+
+        $table = new Table('table1', ['id' => false], $this->adapter);
+        $table->addColumn('fruit', 'enum', ['values' => $values])->save();
+
+        $columns = $this->adapter->getColumns('table1');
+        $fruitColumn = null;
+        foreach ($columns as $column) {
+            if ($column->getName() === 'fruit') {
+                $fruitColumn = $column;
+                break;
+            }
+        }
+
+        $this->assertNotNull($fruitColumn, 'Column fruit should exist');
+        $this->assertSame($values, $fruitColumn->getValues(), 'Enum values should preserve insertion order');
+    }
+
+    public function testInsertDataWithEnumColumn()
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('status', 'enum', [
+            'values' => ['pending', 'active', 'closed'],
+            'null' => false,
+            'default' => 'pending',
+        ])->save();
+
+        $table->insert([
+            ['status' => 'active'],
+            ['status' => 'closed'],
+        ])->save();
+
+        $rows = $this->adapter->fetchAll('SELECT status FROM table1 ORDER BY id');
+        $this->assertCount(2, $rows);
+        $this->assertEquals('active', $rows[0]['status']);
+        $this->assertEquals('closed', $rows[1]['status']);
+    }
+
+    public function testCreateTableWithEnumColumnWithoutValuesThrows()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Column "status" is of type enum but has no values defined.');
+
+        $table = new Table('table1', [], $this->adapter);
+        $table->addColumn('status', 'enum', [])->save();
+    }
+
+    public function testAddEnumColumnWithoutValuesThrows()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Column "role" is of type enum but has no values defined.');
+
+        $table = new Table('table1', [], $this->adapter);
+        $table->save();
+
+        $table->addColumn('role', 'enum', [])->save();
+    }
+
+    public function testRenameTableRenamesEnumType()
+    {
+        $table = new Table('table1', ['id' => false], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => ['active', 'inactive'], 'null' => false])->save();
+
+        $oldTypeName = 'table1_status';
+        $newTypeName = 'table2_status';
+
+        $this->assertTrue(
+            (bool)$this->adapter->fetchRow(
+                sprintf(
+                    "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                    $oldTypeName,
+                ),
+            )['type_exists'],
+            'Enum type should exist before rename',
+        );
+
+        $this->adapter->renameTable('table1', 'table2');
+
+        // Old convention name should no longer exist; new one should.
+        $this->assertFalse(
+            (bool)$this->adapter->fetchRow(
+                sprintf(
+                    "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                    $oldTypeName,
+                ),
+            )['type_exists'],
+            'Old enum type should be renamed away',
+        );
+        $this->assertTrue(
+            (bool)$this->adapter->fetchRow(
+                sprintf(
+                    "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                    $newTypeName,
+                ),
+            )['type_exists'],
+            'Enum type should follow the new table name',
+        );
+
+        // The column should still round-trip as an enum with the same values.
+        $columns = $this->adapter->getColumns('table2');
+        $statusColumn = null;
+        foreach ($columns as $column) {
+            if ($column->getName() === 'status') {
+                $statusColumn = $column;
+                break;
+            }
+        }
+        $this->assertNotNull($statusColumn);
+        $this->assertEquals('enum', $statusColumn->getType());
+        $this->assertEquals(['active', 'inactive'], $statusColumn->getValues());
+    }
+
+    public function testRenameColumnRenamesEnumType()
+    {
+        $table = new Table('table1', ['id' => false], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => ['active', 'inactive'], 'null' => false])->save();
+
+        $oldTypeName = 'table1_status';
+        $newTypeName = 'table1_state';
+
+        $this->assertTrue(
+            (bool)$this->adapter->fetchRow(
+                sprintf(
+                    "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                    $oldTypeName,
+                ),
+            )['type_exists'],
+            'Enum type should exist before rename',
+        );
+
+        $this->adapter->renameColumn('table1', 'status', 'state');
+
+        $this->assertFalse(
+            (bool)$this->adapter->fetchRow(
+                sprintf(
+                    "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                    $oldTypeName,
+                ),
+            )['type_exists'],
+            'Old enum type should be renamed away',
+        );
+        $this->assertTrue(
+            (bool)$this->adapter->fetchRow(
+                sprintf(
+                    "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                    $newTypeName,
+                ),
+            )['type_exists'],
+            'Enum type should follow the new column name',
+        );
+    }
+
+    public function testDropColumnDropsEnumTypeAfterTableRename()
+    {
+        $table = new Table('table1', ['id' => false], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => ['active', 'inactive'], 'null' => false])->save();
+
+        $this->adapter->renameTable('table1', 'table2');
+
+        // After the rename the type follows the new convention, so dropping the
+        // column must still clean it up.
+        $table2 = new Table('table2', [], $this->adapter);
+        $table2->removeColumn('status')->save();
+
+        $this->assertFalse(
+            (bool)$this->adapter->fetchRow(
+                sprintf(
+                    "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                    'table2_status',
+                ),
+            )['type_exists'],
+            'Enum type should be dropped with the column after a table rename',
+        );
+    }
+
+    public function testDropTableDropsEnumTypesAfterTableRename()
+    {
+        $table = new Table('table1', ['id' => false], $this->adapter);
+        $table->addColumn('status', 'enum', ['values' => ['active', 'inactive'], 'null' => false])->save();
+
+        $this->adapter->renameTable('table1', 'table2');
+
+        $this->adapter->dropTable('table2');
+
+        $this->assertFalse(
+            (bool)$this->adapter->fetchRow(
+                sprintf(
+                    "SELECT EXISTS(SELECT 1 FROM pg_type WHERE typname = '%s' AND typtype = 'e') AS type_exists",
+                    'table2_status',
+                ),
+            )['type_exists'],
+            'Enum type should be dropped with the table after a table rename',
+        );
     }
 }

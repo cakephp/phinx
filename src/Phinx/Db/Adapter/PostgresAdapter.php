@@ -42,6 +42,7 @@ class PostgresAdapter extends PdoAdapter
         self::PHINX_TYPE_MACADDR,
         self::PHINX_TYPE_INTERVAL,
         self::PHINX_TYPE_BINARYUUID,
+        self::PHINX_TYPE_ENUM,
     ];
 
     private const GIN_INDEX_TYPE = 'gin';
@@ -277,7 +278,7 @@ class PostgresAdapter extends PdoAdapter
 
         $this->columnsWithComments = [];
         foreach ($columns as $column) {
-            $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column);
+            $sql .= $this->quoteColumnName($column->getName()) . ' ' . $this->getColumnSqlDefinition($column, $table->getName());
             if ($this->useIdentity && $column->getIdentity() && $column->getGenerated() !== null) {
                 $sql .= sprintf(' GENERATED %s AS IDENTITY', $column->getGenerated());
             }
@@ -304,6 +305,26 @@ class PostgresAdapter extends PdoAdapter
         }
 
         $sql .= ')';
+
+        // Emit CREATE TYPE ... AS ENUM statements before the CREATE TABLE statement
+        foreach ($columns as $column) {
+            if ($column->getType() === static::PHINX_TYPE_ENUM) {
+                $values = $column->getValues();
+                if (empty($values)) {
+                    throw new InvalidArgumentException(sprintf(
+                        'Column "%s" is of type enum but has no values defined.',
+                        $column->getName(),
+                    ));
+                }
+                $typeName = $this->getEnumTypeName($table->getName(), $column->getName());
+                $queries[] = sprintf(
+                    'CREATE TYPE %s AS ENUM (%s)',
+                    $this->quoteColumnName($typeName),
+                    implode(', ', array_map(fn($v) => $this->getConnection()->quote($v), $values)),
+                );
+            }
+        }
+
         $queries[] = $sql;
 
         // process column comments
@@ -412,8 +433,33 @@ class PostgresAdapter extends PdoAdapter
             $this->quoteTableName($tableName),
             $this->quoteColumnName($newTableName),
         );
+        $instructions = new AlterInstructions([], [$sql]);
 
-        return new AlterInstructions([], [$sql]);
+        // Keep the {table}_{column} enum type naming convention invariant
+        // across table renames so dropColumn/dropTable can still locate the
+        // type. Only types whose current name matches the old convention are
+        // renamed; custom-named types are left untouched.
+        $parts = $this->getSchemaName($tableName);
+        foreach ($this->getColumns($tableName) as $column) {
+            if ($column->getType() !== static::PHINX_TYPE_ENUM) {
+                continue;
+            }
+            $oldTypeName = $this->getEnumTypeName($tableName, $column->getName());
+            if (!$this->hasEnumType($oldTypeName, $parts['schema'])) {
+                continue;
+            }
+            $newTypeName = $this->getEnumTypeName($newTableName, $column->getName());
+            if ($oldTypeName === $newTypeName) {
+                continue;
+            }
+            $instructions->addPostStep(sprintf(
+                'ALTER TYPE %s RENAME TO %s',
+                $this->quoteColumnName($oldTypeName),
+                $this->quoteColumnName($newTypeName),
+            ));
+        }
+
+        return $instructions;
     }
 
     /**
@@ -421,10 +467,26 @@ class PostgresAdapter extends PdoAdapter
      */
     protected function getDropTableInstructions(string $tableName): AlterInstructions
     {
+        $parts = $this->getSchemaName($tableName);
         $this->removeCreatedTable($tableName);
         $sql = sprintf('DROP TABLE %s', $this->quoteTableName($tableName));
+        $instructions = new AlterInstructions([], [$sql]);
 
-        return new AlterInstructions([], [$sql]);
+        // Drop any Phinx-managed enum types associated with this table's enum columns
+        foreach ($this->getColumns($tableName) as $column) {
+            if ($column->getType() !== static::PHINX_TYPE_ENUM) {
+                continue;
+            }
+            $typeName = $this->getEnumTypeName($tableName, $column->getName());
+            if ($this->hasEnumType($typeName, $parts['schema'])) {
+                $instructions->addPostStep(sprintf(
+                    'DROP TYPE %s',
+                    $this->quoteColumnName($typeName),
+                ));
+            }
+        }
+
+        return $instructions;
     }
 
     /**
@@ -462,9 +524,15 @@ class PostgresAdapter extends PdoAdapter
         $columnsInfo = $this->fetchAll($sql);
         foreach ($columnsInfo as $columnInfo) {
             $isUserDefined = strtoupper(trim($columnInfo['data_type'])) === 'USER-DEFINED';
+            $enumValues = null;
 
             if ($isUserDefined) {
-                $columnType = Literal::from($columnInfo['udt_name']);
+                $enumValues = $this->getEnumTypeValues($columnInfo['udt_name'], $parts['schema']);
+                if ($enumValues !== null) {
+                    $columnType = static::PHINX_TYPE_ENUM;
+                } else {
+                    $columnType = Literal::from($columnInfo['udt_name']);
+                }
             } else {
                 $columnType = $this->getPhinxType($columnInfo['data_type']);
             }
@@ -512,6 +580,11 @@ class PostgresAdapter extends PdoAdapter
             } elseif ($columnType === self::PHINX_TYPE_DECIMAL) {
                 $column->setPrecision($columnInfo['numeric_precision']);
             }
+
+            if ($enumValues !== null) {
+                $column->setValues($enumValues);
+            }
+
             $columns[] = $column;
         }
 
@@ -544,10 +617,26 @@ class PostgresAdapter extends PdoAdapter
     protected function getAddColumnInstructions(Table $table, Column $column): AlterInstructions
     {
         $instructions = new AlterInstructions();
+
+        if ($column->getType() === static::PHINX_TYPE_ENUM) {
+            $values = $column->getValues();
+            if (empty($values)) {
+                throw new InvalidArgumentException(sprintf(
+                    'Column "%s" is of type enum but has no values defined.',
+                    $column->getName(),
+                ));
+            }
+            $typeName = $this->getEnumTypeName($table->getName(), $column->getName());
+            $instructions->addPreStep(sprintf(
+                'CREATE TYPE %s AS ENUM (%s)',
+                $this->quoteColumnName($typeName),
+                implode(', ', array_map(fn($v) => $this->getConnection()->quote($v), $values)),
+            ));
+        }
         $instructions->addAlter(sprintf(
             'ADD %s %s %s',
             $this->quoteColumnName($column->getName()),
-            $this->getColumnSqlDefinition($column),
+            $this->getColumnSqlDefinition($column, $table->getName()),
             $column->isIdentity() && $column->getGenerated() !== null && $this->useIdentity ?
                 sprintf('GENERATED %s AS IDENTITY', $column->getGenerated()) : '',
         ));
@@ -594,6 +683,21 @@ class PostgresAdapter extends PdoAdapter
             ),
         );
 
+        // Keep the {table}_{column} enum type naming convention invariant
+        // across column renames so dropColumn/dropTable can still locate the
+        // type. Custom-named types are left untouched.
+        $oldTypeName = $this->getEnumTypeName($tableName, $columnName);
+        if ($this->hasEnumType($oldTypeName, $parts['schema'])) {
+            $newTypeName = $this->getEnumTypeName($tableName, $newColumnName);
+            if ($oldTypeName !== $newTypeName) {
+                $instructions->addPostStep(sprintf(
+                    'ALTER TYPE %s RENAME TO %s',
+                    $this->quoteColumnName($oldTypeName),
+                    $this->quoteColumnName($newTypeName),
+                ));
+            }
+        }
+
         return $instructions;
     }
 
@@ -614,7 +718,7 @@ class PostgresAdapter extends PdoAdapter
         $sql = sprintf(
             'ALTER COLUMN %s TYPE %s',
             $quotedColumnName,
-            $this->getColumnSqlDefinition($newColumn),
+            $this->getColumnSqlDefinition($newColumn, $tableName),
         );
         if (in_array($newColumn->getType(), ['smallinteger', 'integer', 'biginteger'], true)) {
             $sql .= sprintf(
@@ -735,7 +839,19 @@ class PostgresAdapter extends PdoAdapter
             $this->quoteColumnName($columnName),
         );
 
-        return new AlterInstructions([$alter]);
+        $instructions = new AlterInstructions([$alter]);
+
+        // Drop the associated Phinx-managed enum type if it exists
+        $parts = $this->getSchemaName($tableName);
+        $typeName = $this->getEnumTypeName($tableName, $columnName);
+        if ($this->hasEnumType($typeName, $parts['schema'])) {
+            $instructions->addPostStep(sprintf(
+                'DROP TYPE %s',
+                $this->quoteColumnName($typeName),
+            ));
+        }
+
+        return $instructions;
     }
 
     /**
@@ -1098,6 +1214,8 @@ class PostgresAdapter extends PdoAdapter
                 return ['name' => 'bytea'];
             case static::PHINX_TYPE_INTERVAL:
                 return ['name' => 'interval'];
+            case static::PHINX_TYPE_ENUM:
+                return ['name' => 'enum'];
             // Geospatial database types
             // Spatial storage in Postgres is done via the PostGIS extension,
             // which enables the use of the "geography" type in combination
@@ -1206,7 +1324,7 @@ class PostgresAdapter extends PdoAdapter
      */
     public function hasDatabase(string $name): bool
     {
-        $sql = sprintf("SELECT count(*) FROM pg_database WHERE datname = '%s'", $name);
+        $sql = sprintf('SELECT count(*) FROM pg_database WHERE datname = %s', $this->getConnection()->quote($name));
         $result = $this->fetchRow($sql);
 
         return $result['count'] > 0;
@@ -1227,9 +1345,10 @@ class PostgresAdapter extends PdoAdapter
      * Gets the PostgreSQL Column Definition for a Column object.
      *
      * @param \Phinx\Db\Table\Column $column Column
+     * @param string|null $tableName Table name, used to derive the enum type name when column type is 'enum'
      * @return string
      */
-    protected function getColumnSqlDefinition(Column $column): string
+    protected function getColumnSqlDefinition(Column $column, ?string $tableName = null): string
     {
         $buffer = [];
 
@@ -1241,6 +1360,11 @@ class PostgresAdapter extends PdoAdapter
             } else {
                 $buffer[] = 'SERIAL';
             }
+        } elseif ($column->getType() === static::PHINX_TYPE_ENUM) {
+            $typeName = $tableName !== null
+                ? $this->getEnumTypeName($tableName, $column->getName())
+                : $column->getName();
+            $buffer[] = $this->quoteColumnName($typeName);
         } elseif ($column->getType() instanceof Literal) {
             $buffer[] = (string)$column->getType();
         } else {
@@ -1293,6 +1417,70 @@ class PostgresAdapter extends PdoAdapter
         }
 
         return implode(' ', $buffer);
+    }
+
+    /**
+     * Returns the Phinx-managed PostgreSQL enum type name for a given table column.
+     *
+     * The convention is `{table}_{column}` using the unqualified table name so that
+     * two tables cannot accidentally share the same type with different values.
+     *
+     * @param string $tableName Table name (may be schema-qualified)
+     * @param string $columnName Column name
+     * @return string
+     */
+    protected function getEnumTypeName(string $tableName, string $columnName): string
+    {
+        return $this->getSchemaName($tableName)['table'] . '_' . $columnName;
+    }
+
+    /**
+     * Returns the enum label values for a given PostgreSQL enum type name, or null if the
+     * type does not exist or is not an enum.
+     *
+     * @param string $typeName Type name (unqualified)
+     * @param string|null $schemaName Schema name (defaults to adapter schema)
+     * @return string[]|null
+     */
+    protected function getEnumTypeValues(string $typeName, ?string $schemaName = null): ?array
+    {
+        $sql = sprintf(
+            "SELECT e.enumlabel
+             FROM pg_type t
+             JOIN pg_enum e ON t.oid = e.enumtypid
+             JOIN pg_namespace n ON t.typnamespace = n.oid
+             WHERE t.typname = %s AND t.typtype = 'e' AND n.nspname = %s
+             ORDER BY e.enumsortorder",
+            $this->getConnection()->quote($typeName),
+            $this->getConnection()->quote($schemaName ?? $this->schema),
+        );
+        $rows = $this->fetchAll($sql);
+
+        return !empty($rows) ? array_column($rows, 'enumlabel') : null;
+    }
+
+    /**
+     * Returns true if a PostgreSQL enum type with the given unqualified name exists in the
+     * given schema.
+     *
+     * @param string $typeName Type name (unqualified)
+     * @param string|null $schemaName Schema name (defaults to adapter schema)
+     * @return bool
+     */
+    protected function hasEnumType(string $typeName, ?string $schemaName = null): bool
+    {
+        $sql = sprintf(
+            "SELECT EXISTS(
+                SELECT 1 FROM pg_type t
+                JOIN pg_namespace n ON t.typnamespace = n.oid
+                WHERE t.typname = %s AND t.typtype = 'e' AND n.nspname = %s
+            ) AS type_exists",
+            $this->getConnection()->quote($typeName),
+            $this->getConnection()->quote($schemaName ?? $this->schema),
+        );
+        $result = $this->fetchRow($sql);
+
+        return (bool)$result['type_exists'];
     }
 
     /**

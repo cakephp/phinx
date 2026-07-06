@@ -109,6 +109,14 @@ class Environment
                     $migration->{MigrationInterface::CHANGE}();
                 }
             } else {
+                if (!method_exists($migration, $direction)) {
+                    throw new RuntimeException(sprintf(
+                        'Migration "%s" must define a %s() or %s() method.',
+                        get_class($migration),
+                        MigrationInterface::CHANGE,
+                        $direction,
+                    ));
+                }
                 $migration->{$direction}();
             }
         }
@@ -143,9 +151,7 @@ class Environment
         }
 
         // Run the seeder
-        if (method_exists($seed, SeedInterface::RUN)) {
-            $seed->{SeedInterface::RUN}();
-        }
+        $seed->run();
 
         // commit the transaction if the adapter supports it
         if ($this->getAdapter()->hasTransactions()) {
