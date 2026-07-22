@@ -385,6 +385,8 @@ REGEXP;
         // filter out everything except the matched groups
         $config = array_intersect_key($parsed, array_flip(['adapter', 'user', 'pass', 'host', 'port', 'name']));
         $config = array_filter($config);
+        // URL-decode all parts
+        $config = array_map('rawurldecode', $config);
 
         parse_str($parsed['query'] ?? '', $query);
         $config = array_merge($query, $config);
