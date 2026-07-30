@@ -487,7 +487,7 @@ class SqlServerAdapter extends PdoAdapter
                 $column->setPrecision((int)$columnInfo['precision']);
             }
 
-            $columns[$columnInfo['name']] = $column;
+            $columns[] = $column;
         }
 
         return $columns;
@@ -626,10 +626,10 @@ SQL;
      */
     protected function getChangeColumnInstructions(string $tableName, string $columnName, Column $newColumn): AlterInstructions
     {
-        $columns = $this->getColumns($tableName);
+        $column = $this->getColumn($tableName, $columnName);
         $changeDefault =
-            $newColumn->getDefault() !== $columns[$columnName]->getDefault() ||
-            $newColumn->getType() !== $columns[$columnName]->getType();
+            $newColumn->getDefault() !== $column?->getDefault() ||
+            $newColumn->getType() !== $column?->getType();
 
         $instructions = new AlterInstructions();
 
@@ -1381,5 +1381,26 @@ ORDER BY T.[name], I.[index_id];";
         ] + $options;
 
         return $this->decoratedConnection = $this->buildConnection(SqlServerDriver::class, $options);
+    }
+
+    /**
+     * Gets a table column
+     *
+     * @param string $tableName
+     * @param string $columnName
+     * @return \Phinx\Db\Table\Column|null
+     */
+    private function getColumn(string $tableName, string $columnName): ?Column
+    {
+        $columns = $this->getColumns($tableName);
+
+        $filteredColumns = array_filter(
+            $columns,
+            static function ($column) use ($columnName) {
+                return $column->getName() === $columnName;
+            },
+        );
+
+        return array_pop($filteredColumns);
     }
 }
