@@ -918,6 +918,81 @@ class PostgresAdapterTest extends TestCase
         $this->assertTrue($table->hasColumn($column_name));
     }
 
+    /**
+     * @dataProvider providerArrayType
+     */
+    public function testGetColumnsReturnsArrayType($column_name, $column_type)
+    {
+        $table = new Table('table1', [], $this->adapter);
+        $table->save();
+        $table->addColumn($column_name, $column_type)
+            ->save();
+
+        $columns = $this->adapter->getColumns('table1');
+        $found = null;
+        foreach ($columns as $column) {
+            if ($column->getName() === $column_name) {
+                $found = $column;
+                break;
+            }
+        }
+
+        $this->assertNotNull($found, sprintf('Column %s not found', $column_name));
+
+        // timestamp[] is introspected as datetime[] (same as non-array timestamp columns)
+        $expectedType = $column_type === 'timestamp[]' ? 'datetime[]' : $column_type;
+        $this->assertSame($expectedType, $found->getType());
+    }
+
+    public function testGetColumnsReturnsArrayTypeForNativePostgresArray()
+    {
+        $this->adapter->execute('CREATE TABLE table1 (id SERIAL NOT NULL PRIMARY KEY, tags varchar[], scores integer[][])');
+
+        $columns = $this->adapter->getColumns('table1');
+        $byName = [];
+        foreach ($columns as $column) {
+            $byName[$column->getName()] = $column;
+        }
+
+        $this->assertArrayHasKey('tags', $byName);
+        $this->assertArrayHasKey('scores', $byName);
+        $this->assertSame('string[]', $byName['tags']->getType());
+        $this->assertSame('integer[][]', $byName['scores']->getType());
+    }
+
+    public function testCustomEnumArrayType()
+    {
+        $this->adapter->execute("CREATE TYPE custom_status_enum AS ENUM ('pending', 'approved', 'rejected')");
+
+        $table = new Table('table1', [], $this->adapter);
+        $table->save();
+        $table->addColumn('statuses', 'custom_status_enum[]')
+            ->save();
+
+        $this->assertTrue($table->hasColumn('statuses'));
+
+        $columns = $this->adapter->getColumns('table1');
+        $found = null;
+        foreach ($columns as $column) {
+            if ($column->getName() === 'statuses') {
+                $found = $column;
+                break;
+            }
+        }
+
+        $this->assertNotNull($found);
+        $this->assertSame('custom_status_enum[]', $found->getType());
+        $this->assertSame(
+            ['name' => 'custom_status_enum[]'],
+            $this->adapter->getSqlType('custom_status_enum[]'),
+        );
+
+        // Round-trip: changeColumn using the introspected custom enum array type
+        $table->changeColumn('statuses', 'custom_status_enum[]', ['null' => false])
+            ->save();
+        $this->assertTrue($table->hasColumn('statuses'));
+    }
+
     public function testAddColumnWithLiteralTypeAndDefault()
     {
         $table = new Table('table1', [], $this->adapter);
@@ -2011,6 +2086,9 @@ class PostgresAdapterTest extends TestCase
         $this->assertEquals('integer', $this->adapter->getPhinxType('int4'));
         $this->assertEquals('integer', $this->adapter->getPhinxType('integer'));
 
+        $this->assertEquals('smallinteger', $this->adapter->getPhinxType('smallint'));
+        $this->assertEquals('smallinteger', $this->adapter->getPhinxType('int2'));
+
         $this->assertEquals('biginteger', $this->adapter->getPhinxType('bigint'));
         $this->assertEquals('biginteger', $this->adapter->getPhinxType('int8'));
 
@@ -2021,12 +2099,17 @@ class PostgresAdapterTest extends TestCase
         $this->assertEquals('float', $this->adapter->getPhinxType('float4'));
 
         $this->assertEquals('double', $this->adapter->getPhinxType('double precision'));
+        $this->assertEquals('double', $this->adapter->getPhinxType('float8'));
 
         $this->assertEquals('boolean', $this->adapter->getPhinxType('bool'));
         $this->assertEquals('boolean', $this->adapter->getPhinxType('boolean'));
 
         $this->assertEquals('string', $this->adapter->getPhinxType('character varying'));
         $this->assertEquals('string', $this->adapter->getPhinxType('varchar'));
+
+        $this->assertEquals('char', $this->adapter->getPhinxType('character'));
+        $this->assertEquals('char', $this->adapter->getPhinxType('char'));
+        $this->assertEquals('char', $this->adapter->getPhinxType('bpchar'));
 
         $this->assertEquals('text', $this->adapter->getPhinxType('text'));
 
@@ -2043,6 +2126,64 @@ class PostgresAdapterTest extends TestCase
         $this->assertEquals('uuid', $this->adapter->getPhinxType('uuid'));
 
         $this->assertEquals('interval', $this->adapter->getPhinxType('interval'));
+    }
+
+    public function providerPostgresInternalArrayUdt()
+    {
+        return [
+            // sql column definition, expected information_schema.udt_name, expected Phinx type
+            ['smallints smallint[]', '_int2', 'smallinteger[]'],
+            ['ints integer[]', '_int4', 'integer[]'],
+            ['bigints bigint[]', '_int8', 'biginteger[]'],
+            ['floats real[]', '_float4', 'float[]'],
+            ['doubles double precision[]', '_float8', 'double[]'],
+            ['chars character(1)[]', '_bpchar', 'char[]'],
+            ['varchars character varying[]', '_varchar', 'string[]'],
+        ];
+    }
+
+    /**
+     * @dataProvider providerPostgresInternalArrayUdt
+     */
+    public function testGetColumnsMapsPostgresInternalArrayUdtNames($columnSql, $expectedUdtName, $expectedPhinxType)
+    {
+        $this->adapter->execute(sprintf(
+            'CREATE TABLE table1 (id SERIAL NOT NULL PRIMARY KEY, %s)',
+            $columnSql,
+        ));
+
+        $columnName = explode(' ', $columnSql, 2)[0];
+
+        $meta = $this->adapter->fetchRow(sprintf(
+            "SELECT data_type, udt_name
+             FROM information_schema.columns
+             WHERE table_schema = 'public' AND table_name = 'table1' AND column_name = %s",
+            $this->adapter->getConnection()->quote($columnName),
+        ));
+        $this->assertSame('ARRAY', $meta['data_type']);
+        $this->assertSame($expectedUdtName, $meta['udt_name']);
+
+        $columns = $this->adapter->getColumns('table1');
+        $found = null;
+        foreach ($columns as $column) {
+            if ($column->getName() === $columnName) {
+                $found = $column;
+                break;
+            }
+        }
+
+        $this->assertNotNull($found, sprintf('Column %s not found', $columnName));
+        $this->assertSame($expectedPhinxType, $found->getType());
+    }
+
+    public function testGetSqlTypeTranslatesPhinxArrayBaseTypes()
+    {
+        $this->assertSame(['name' => 'smallint[]'], $this->adapter->getSqlType('smallinteger[]'));
+        $this->assertSame(['name' => 'character[]'], $this->adapter->getSqlType('char[]'));
+        $this->assertSame(['name' => 'double precision[]'], $this->adapter->getSqlType('double[]'));
+        $this->assertSame(['name' => 'character varying[]'], $this->adapter->getSqlType('string[]'));
+        $this->assertSame(['name' => 'real[]'], $this->adapter->getSqlType('float[]'));
+        $this->assertSame(['name' => 'timestamp[]'], $this->adapter->getSqlType('datetime[]'));
     }
 
     public function testCreateTableWithComment()
