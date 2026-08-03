@@ -523,7 +523,8 @@ class PostgresAdapter extends PdoAdapter
         );
         $columnsInfo = $this->fetchAll($sql);
         foreach ($columnsInfo as $columnInfo) {
-            $isUserDefined = strtoupper(trim($columnInfo['data_type'])) === 'USER-DEFINED';
+            $dataType = strtoupper(trim($columnInfo['data_type']));
+            $isUserDefined = $dataType === 'USER-DEFINED';
             $enumValues = null;
 
             if ($isUserDefined) {
@@ -533,6 +534,14 @@ class PostgresAdapter extends PdoAdapter
                 } else {
                     $columnType = Literal::from($columnInfo['udt_name']);
                 }
+            } elseif ($dataType === 'ARRAY') {
+                // information_schema reports array columns as data_type = ARRAY;
+                // the element type lives in udt_name (e.g. _int4, _text).
+                $columnType = $this->getPhinxArrayType(
+                    $columnInfo['udt_name'],
+                    $parts,
+                    $columnInfo['column_name'],
+                );
             } else {
                 $columnType = $this->getPhinxType($columnInfo['data_type']);
             }
@@ -1230,7 +1239,7 @@ class PostgresAdapter extends PdoAdapter
                 return ['name' => 'geography', 'type' => 'polygon', 'srid' => 4326];
             default:
                 if ($this->isArrayType($type)) {
-                    return ['name' => $type];
+                    return $this->getArraySqlType($type, $limit);
                 }
                 // Return array type
                 throw new UnsupportedColumnTypeException('Column type `' . $type . '` is not supported by Postgresql.');
@@ -1252,6 +1261,7 @@ class PostgresAdapter extends PdoAdapter
                 return static::PHINX_TYPE_STRING;
             case 'character':
             case 'char':
+            case 'bpchar':
                 return static::PHINX_TYPE_CHAR;
             case 'text':
                 return static::PHINX_TYPE_TEXT;
@@ -1260,6 +1270,7 @@ class PostgresAdapter extends PdoAdapter
             case 'jsonb':
                 return static::PHINX_TYPE_JSONB;
             case 'smallint':
+            case 'int2':
                 return static::PHINX_TYPE_SMALL_INTEGER;
             case 'int':
             case 'int4':
@@ -1275,6 +1286,7 @@ class PostgresAdapter extends PdoAdapter
             case 'float4':
                 return static::PHINX_TYPE_FLOAT;
             case 'double precision':
+            case 'float8':
                 return static::PHINX_TYPE_DOUBLE;
             case 'bytea':
                 return static::PHINX_TYPE_BINARY;
@@ -1720,18 +1732,120 @@ class PostgresAdapter extends PdoAdapter
     /**
      * Check if the given column is an array of a valid type.
      *
+     * Accepts arrays of Phinx types (`integer[]`) and native/custom PostgreSQL
+     * types such as user-defined enums (`my_status_enum[]`).
+     *
      * @param string|\Phinx\Util\Literal $columnType Column type
      * @return bool
      */
     protected function isArrayType(string|Literal $columnType): bool
     {
-        if (!preg_match('/^([a-z]+)(?:\[\]){1,}$/', $columnType, $matches)) {
-            return false;
+        return $this->parseArrayType($columnType) !== null;
+    }
+
+    /**
+     * Parse an array column type into its base name and `[]` suffix.
+     *
+     * @param string|\Phinx\Util\Literal $columnType Column type
+     * @return array{base: string, suffix: string}|null
+     */
+    protected function parseArrayType(string|Literal $columnType): ?array
+    {
+        if (!preg_match('/^([a-z_][a-z0-9_]*)((?:\[\])+)$/', (string)$columnType, $matches)) {
+            return null;
         }
 
-        $baseType = $matches[1];
+        return [
+            'base' => $matches[1],
+            'suffix' => $matches[2],
+        ];
+    }
 
-        return in_array($baseType, $this->getColumnTypes(), true);
+    /**
+     * Resolve a PostgreSQL array column type to a SQL type definition.
+     *
+     * Known Phinx base types are translated (e.g. `string[]` -> `character varying[]`).
+     * Native/custom PostgreSQL types are passed through unchanged (e.g. `my_enum[]`).
+     *
+     * @param string $type Array column type
+     * @param int|null $limit Limit for the base type, if applicable
+     * @return array
+     */
+    protected function getArraySqlType(string $type, ?int $limit = null): array
+    {
+        $parsed = $this->parseArrayType($type);
+        if ($parsed === null) {
+            throw new UnsupportedColumnTypeException('Column type `' . $type . '` is not supported by Postgresql.');
+        }
+
+        if (in_array($parsed['base'], $this->getColumnTypes(), true)) {
+            $baseType = $this->getSqlType($parsed['base'], $limit);
+
+            return ['name' => $baseType['name'] . $parsed['suffix']];
+        }
+
+        return ['name' => $type];
+    }
+
+    /**
+     * Convert a PostgreSQL array udt_name into a Phinx array column type.
+     *
+     * PostgreSQL stores array element types with a leading underscore in
+     * information_schema.columns.udt_name (e.g. `_int4`, `_text`). Array
+     * dimensionality is read from pg_attribute.attndims.
+     *
+     * @param string $udtName PostgreSQL udt_name (e.g. _int4)
+     * @param array $parts Schema/table parts from getSchemaName()
+     * @param string $columnName Column name
+     * @return string|\Phinx\Util\Literal
+     */
+    protected function getPhinxArrayType(string $udtName, array $parts, string $columnName): string|Literal
+    {
+        $baseUdt = str_starts_with($udtName, '_') ? substr($udtName, 1) : $udtName;
+        $dimensions = $this->getArrayDimensions($parts['schema'], $parts['table'], $columnName);
+        $suffix = str_repeat('[]', $dimensions);
+        $arrayType = $baseUdt . $suffix;
+
+        try {
+            return $this->getPhinxType($baseUdt) . $suffix;
+        } catch (UnsupportedColumnTypeException) {
+            // Keep native/custom PostgreSQL types (enums, domains, etc.) as a
+            // plain array type string so addColumn/changeColumn round-trips work.
+            if ($this->isArrayType($arrayType)) {
+                return $arrayType;
+            }
+
+            return Literal::from($arrayType);
+        }
+    }
+
+    /**
+     * Return the number of array dimensions for a column (minimum 1).
+     *
+     * @param string $schema Schema name
+     * @param string $table Table name
+     * @param string $columnName Column name
+     * @return int
+     */
+    protected function getArrayDimensions(string $schema, string $table, string $columnName): int
+    {
+        $sql = sprintf(
+            'SELECT a.attndims
+            FROM pg_catalog.pg_namespace n
+            JOIN pg_catalog.pg_class c ON c.relnamespace = n.oid
+            JOIN pg_catalog.pg_attribute a ON a.attrelid = c.oid
+            WHERE n.nspname = %s
+              AND c.relname = %s
+              AND a.attname = %s
+              AND a.attnum > 0
+              AND NOT a.attisdropped',
+            $this->getConnection()->quote($schema),
+            $this->getConnection()->quote($table),
+            $this->getConnection()->quote($columnName),
+        );
+        $row = $this->fetchRow($sql);
+
+        return (int)($row['attndims'] ?? 1);
     }
 
     /**
