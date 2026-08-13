@@ -78,6 +78,11 @@ class Column
     /**
      * @var bool
      */
+    protected bool $limitSet = false;
+
+    /**
+     * @var bool
+     */
     protected bool $null = true;
 
     /**
@@ -239,6 +244,7 @@ class Column
     public function setLimit(?int $limit)
     {
         $this->limit = $limit;
+        $this->limitSet = true;
 
         return $this;
     }
@@ -251,6 +257,11 @@ class Column
     public function getLimit(): ?int
     {
         return $this->limit;
+    }
+
+    public function hasLimitSet(): bool
+    {
+        return $this->limitSet;
     }
 
     /**

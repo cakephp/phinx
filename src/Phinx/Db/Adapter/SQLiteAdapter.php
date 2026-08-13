@@ -1864,7 +1864,7 @@ PCRE_PATTERN;
             $def = strtoupper($sqlType['name']);
 
             $limitable = in_array(strtoupper($sqlType['name']), $this->definitionsWithLimits, true);
-            if (($column->getLimit() || isset($sqlType['limit'])) && $limitable) {
+            if (($column->getLimit() || (!$column->hasLimitSet() && isset($sqlType['limit']))) && $limitable) {
                 $def .= '(' . ($column->getLimit() ?: $sqlType['limit']) . ')';
             }
         }
